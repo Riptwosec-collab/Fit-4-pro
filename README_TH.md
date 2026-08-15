@@ -5,7 +5,7 @@
 - `watch-lite/` — Lite Wearable app สำหรับ Watch (480×408)
 - `android-companion/` — Android Phone Companion + Huawei Wear Engine + Wi‑Fi Recon + Voice handoff
 - `pc-agent/` — Windows Agent สำหรับคำสั่ง PC แบบ whitelist + authentication
-- `legacy/` — V4 HTML เดิม เก็บไว้เป็น baseline เพื่อ Zero Regression
+- `legacy/pc_remote_deck_os_masterpiece_field_wifi_v4.html.gz` — V4 HTML เดิมแบบ gzip เก็บไว้เป็น baseline เพื่อ Zero Regression
 
 > เป้าหมายคือ **PHONE SCANS / WATCH COMMANDS / PC EXECUTES** และไม่แสดงข้อมูล Sensor/API ที่เข้าถึงไม่ได้เป็นค่าจริง
 
@@ -75,3 +75,14 @@ python tools/preflight.py
 ## สำคัญ
 
 โปรเจกต์นี้ไม่ได้สร้าง `.hap` หรือ `.apk` ที่ signed สำเร็จใน environment ปัจจุบัน เพราะไม่มี DevEco Studio, Android SDK และ signing identity ของบัญชี Huawei ของผู้ใช้ จึงส่งเป็น **source-ready project** ที่พร้อมนำไปเปิดใน IDE และใส่ identity จริงแทนการสร้าง binary ปลอม
+
+
+## Legacy baseline ใน GitHub
+
+เพื่อให้ repo เบา ไฟล์ V4 HTML baseline ถูกเก็บแบบ gzip:
+
+```bash
+gzip -dk legacy/pc_remote_deck_os_masterpiece_field_wifi_v4.html.gz
+```
+
+หลังแตกไฟล์จะได้ `legacy/pc_remote_deck_os_masterpiece_field_wifi_v4.html` ต้นฉบับ
