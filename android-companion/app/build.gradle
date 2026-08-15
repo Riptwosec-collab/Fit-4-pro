@@ -1,0 +1,21 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.riptwosec.pcremotedeck'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.riptwosec.pcremotedeck'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '5.0-fit4pro'
+        buildConfigField 'String', 'WATCH_PACKAGE', '"com.riptwosec.pcremotedeck.watch"'
+        buildConfigField 'String', 'WATCH_FINGERPRINT', '"REPLACE_WITH_WATCH_SHA256_FINGERPRINT"'
+    }
+    buildFeatures { buildConfig true }
+}
+
+dependencies {
+    // Huawei official Wear Engine artifact. Check Huawei docs for a newer compatible release when building.
+    implementation 'com.huawei.hms:wearengine:5.0.2.306'
+}
