@@ -1,0 +1,9 @@
+{
+  "name": "entry",
+  "version": "5.0.0",
+  "description": "Lite Wearable UI and Watch-side sensor/command layer",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {}
+}

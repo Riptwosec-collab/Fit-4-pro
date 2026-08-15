@@ -1,0 +1,1 @@
+Replace wearengine.js with Huawei official Lite Wearable Wear Engine SDK file before real phone-watch testing.
