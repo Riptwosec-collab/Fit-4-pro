@@ -1,0 +1,236 @@
+{
+  "project": "PC Remote Deck FIT 4 Pro REAL V5",
+  "fileCount": 46,
+  "files": [
+    {
+      "path": "README_TH.md",
+      "bytes": 3767,
+      "sha256": "6cd9851618141fa03582962bf8f6ec50cc2406b3e64211d8950c96bfc7f32157"
+    },
+    {
+      "path": "READY_TO_CONFIGURE.txt",
+      "bytes": 334,
+      "sha256": "722eb79b8dbf1b75bf6666698aef73f82b2074a1a4aa47ca379d4c8fd9aaa9d5"
+    },
+    {
+      "path": "android-companion/app/build.gradle",
+      "bytes": 697,
+      "sha256": "910bc3665a812d3e6cfe08b94ad9573417f909dec34db1850b7d6f2f51fd45b6"
+    },
+    {
+      "path": "android-companion/app/proguard-rules.pro",
+      "bytes": 160,
+      "sha256": "c1b573ea591156f4db0c863d31f151ba962b990429905fa727b96430bf1a992f"
+    },
+    {
+      "path": "android-companion/app/src/main/AndroidManifest.xml",
+      "bytes": 1357,
+      "sha256": "c4805f678784d05eb990df52bf0513edab50b798b5cde8c91a70b0a4fc90d59b"
+    },
+    {
+      "path": "android-companion/app/src/main/java/com/riptwosec/pcremotedeck/CommandRouter.java",
+      "bytes": 2440,
+      "sha256": "b155e318ea64f758f76e015eb9d452ae8ad7e647bf1a4e2e76cd0673eb3b90da"
+    },
+    {
+      "path": "android-companion/app/src/main/java/com/riptwosec/pcremotedeck/MainActivity.java",
+      "bytes": 7984,
+      "sha256": "9c76b6bcb03620d14fecc852b80663a3e71d310f63acac7e03aa80568d2ed9d0"
+    },
+    {
+      "path": "android-companion/app/src/main/java/com/riptwosec/pcremotedeck/PcBridgeClient.java",
+      "bytes": 2737,
+      "sha256": "e60489d49c36c1a630d1dd4fe97091f14ca1a463fc8f9fef6270fedfb8a5a145"
+    },
+    {
+      "path": "android-companion/app/src/main/java/com/riptwosec/pcremotedeck/WearBridge.java",
+      "bytes": 4704,
+      "sha256": "806b5e5bd1e5e3214871a5d6e4160c14a35433562342d494bef0a7af329a241d"
+    },
+    {
+      "path": "android-companion/app/src/main/java/com/riptwosec/pcremotedeck/WifiReconManager.java",
+      "bytes": 8282,
+      "sha256": "97c560ca35c464060d59aae8a4f1c3a48f6c627e473eda2e8aa288fb5e0abca5"
+    },
+    {
+      "path": "android-companion/app/src/main/res/values/strings.xml",
+      "bytes": 80,
+      "sha256": "701074b0f74697d4e3af97c01041121e538b433d145980581c7c67f1dfe28016"
+    },
+    {
+      "path": "android-companion/build.gradle",
+      "bytes": 73,
+      "sha256": "c3c0cf04da0fc239f391c774554d97d890018ab6e37e87cc62f6070d0c8c9909"
+    },
+    {
+      "path": "android-companion/gradle.properties",
+      "bytes": 77,
+      "sha256": "4667473ab79d19d7b6d3f7c341c798a60b413fa3aa08587ce81809a58c797904"
+    },
+    {
+      "path": "android-companion/settings.gradle",
+      "bytes": 386,
+      "sha256": "55565756b4345dfdafbc3b81eb7f574be4faedfbbb20852cd2bd9bad2b47d4ea"
+    },
+    {
+      "path": "docs/BUILD_AND_INSTALL_TH.md",
+      "bytes": 5556,
+      "sha256": "9e306c3eae2e05be4dea692150109a977f8068ba73b2ec20c7b5f295010f31ea"
+    },
+    {
+      "path": "docs/CAPABILITY_MATRIX.md",
+      "bytes": 2055,
+      "sha256": "80e689fd244af25312c5c7ab9f8612ecee3cbf5b53bf321f11357a3476e6a023"
+    },
+    {
+      "path": "docs/KNOWN_LIMITATIONS.md",
+      "bytes": 1051,
+      "sha256": "5c5249d1646592f19ae5e0a0bc70b21883b8c0013055580ffda143ada61aaf7d"
+    },
+    {
+      "path": "docs/PROTOCOL.md",
+      "bytes": 1522,
+      "sha256": "6e74adaa01e0987c745f72d3ce20f155e4ac65fdbb5d503fcd5f4addb895c24f"
+    },
+    {
+      "path": "docs/REGRESSION_REPORT.md",
+      "bytes": 1037,
+      "sha256": "f69a4a4e4b8f8d8db270f94bfeeb46b2f6aeb5f71be8b7160b3dc313f4d6a17a"
+    },
+    {
+      "path": "legacy/pc_remote_deck_os_masterpiece_field_wifi_v4.html",
+      "bytes": 257009,
+      "sha256": "4b9108e3a977add62e59d3677f28ea9bccfe6f4bd527310833a49101b8a83283"
+    },
+    {
+      "path": "pc-agent/agent_config.example.json",
+      "bytes": 96,
+      "sha256": "2d3fd0e378e92609ff48b099ded095576d078b2e306928e50cc57e16f02c4871"
+    },
+    {
+      "path": "pc-agent/generate_token.py",
+      "bytes": 365,
+      "sha256": "a861e4c00f38dd0fff02b32c3167b798aa78213edfe896271acea8f226dd7b15"
+    },
+    {
+      "path": "pc-agent/install_pc_agent.ps1",
+      "bytes": 521,
+      "sha256": "9b7b784ae06f4cf4978f21404038a95e1bb88a687a9423cb3eb68aab9e0d76e5"
+    },
+    {
+      "path": "pc-agent/pc_agent.py",
+      "bytes": 9617,
+      "sha256": "5f4f5e0bbfd9a8a6a6ea422d92339ea6addaae2dc60a8f2019920c265fd709a4"
+    },
+    {
+      "path": "pc-agent/run_agent.bat",
+      "bytes": 97,
+      "sha256": "1c3be7fb35c1e6a72a21c4fe95763fc60c9a0f616941277b252d773f9e976939"
+    },
+    {
+      "path": "tools/configure_identity.py",
+      "bytes": 1375,
+      "sha256": "9017e5a1eff5d2eeb3c9f3942623e6a0a382f05b73a2e06ffb4300e62e80d1f3"
+    },
+    {
+      "path": "tools/install_wearengine_sdk.py",
+      "bytes": 801,
+      "sha256": "fd7a0c6dd8bb27d239adda7f1123f51b20db2d3bafd71cfab2aa47bd321009ef"
+    },
+    {
+      "path": "tools/preflight.py",
+      "bytes": 1927,
+      "sha256": "432ee8e4ef27ed0d8aa494ca7c5b76d44ae8a9645b8d1d3b17aae2665247776f"
+    },
+    {
+      "path": "watch-lite/build-profile.json5",
+      "bytes": 548,
+      "sha256": "d03733bb121269b95f161da2258f7d44266f96de9128613812b88a1edf0194ee"
+    },
+    {
+      "path": "watch-lite/entry/build-profile.json5",
+      "bytes": 87,
+      "sha256": "bda665064d7a0f74533e883ab26052e55170eefb7e772ab725920b003aac3c86"
+    },
+    {
+      "path": "watch-lite/entry/hvigorfile.ts",
+      "bytes": 114,
+      "sha256": "754eb68b39a75d5e69c0792243240426af833c3acc823ee3796dcb7f15f15df0"
+    },
+    {
+      "path": "watch-lite/entry/oh-package.json5",
+      "bytes": 186,
+      "sha256": "e7ab6428c08ed99c1e55c45ea98ea01bcd35c431fd9de49ad8c85ca3cf780d5e"
+    },
+    {
+      "path": "watch-lite/entry/src/main/config.json",
+      "bytes": 1885,
+      "sha256": "bfc8bd502aa9d2fd952a9ef18c56dc5068ca01330bb61a3f262717b996ca59dc"
+    },
+    {
+      "path": "watch-lite/entry/src/main/js/MainAbility/app.js",
+      "bytes": 50,
+      "sha256": "41f53099db581f1187d830171f597e68b9c109cfa82577a48ea07f1a4666cc9a"
+    },
+    {
+      "path": "watch-lite/entry/src/main/js/MainAbility/common/constants.js",
+      "bytes": 131,
+      "sha256": "987aaeca98d9231fc6507ec0061773595c83e6690c8b8e269fd31a147c3c1803"
+    },
+    {
+      "path": "watch-lite/entry/src/main/js/MainAbility/common/featureCatalog.js",
+      "bytes": 12407,
+      "sha256": "96e04207a96c3898fffba7a62abee4b5e33153abf714c1182d83ee3143402e63"
+    },
+    {
+      "path": "watch-lite/entry/src/main/js/MainAbility/pages/index/index.css",
+      "bytes": 3335,
+      "sha256": "3d72c1e686993db505f05c30150d074045635934916ffb74a233ee3b2e69c61b"
+    },
+    {
+      "path": "watch-lite/entry/src/main/js/MainAbility/pages/index/index.hml",
+      "bytes": 12333,
+      "sha256": "0c08e5694e3630ec4b316640edaaa5e63961239820282ae7d1ce0573e67b5e89"
+    },
+    {
+      "path": "watch-lite/entry/src/main/js/MainAbility/pages/index/index.js",
+      "bytes": 19260,
+      "sha256": "f7bc8fd7d9ad851acd8a22f5b52bef9c664c2c974bfce2f35556f63af424f168"
+    },
+    {
+      "path": "watch-lite/entry/src/main/js/MainAbility/wearengine/REPLACE_WITH_OFFICIAL_SDK.txt",
+      "bytes": 111,
+      "sha256": "d9ccd2901c0dabcda2dca27b3aec1b62a1dde919e6768ad01609d4743fe5e178"
+    },
+    {
+      "path": "watch-lite/entry/src/main/js/MainAbility/wearengine/wearengine.js",
+      "bytes": 596,
+      "sha256": "ec0994455456224d343269e51a0e1170f29417a8a5a5018102ee549402fc2050"
+    },
+    {
+      "path": "watch-lite/entry/src/main/resources/base/element/string.json",
+      "bytes": 132,
+      "sha256": "0864970e270d1ec24d870e7c9834cf5dd4b0ca8fc4fc84cc4916d60729b53bad"
+    },
+    {
+      "path": "watch-lite/entry/src/main/resources/base/media/icon.png",
+      "bytes": 807,
+      "sha256": "0540417dd6af7c865c012e0ccdc23c69d21acdc1570f7336be1c4b99ba325ac7"
+    },
+    {
+      "path": "watch-lite/entry/src/main/resources/base/media/icon_small.png",
+      "bytes": 416,
+      "sha256": "b34445eea864c520762a926ebd32c71666453a23a897bb1852af194dc041ae7c"
+    },
+    {
+      "path": "watch-lite/hvigorfile.ts",
+      "bytes": 114,
+      "sha256": "95f1b1ddc702ecb9816af8cb3d1dfede33ec22ca61432d95a8f8c04b7110813c"
+    },
+    {
+      "path": "watch-lite/oh-package.json5",
+      "bytes": 139,
+      "sha256": "08b3f1a8a161163934b5d02a41be1cfd9cc4c6a9abf982c86414bcfded306571"
+    }
+  ]
+}

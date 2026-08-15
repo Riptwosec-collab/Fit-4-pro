@@ -1,0 +1,12 @@
+PC Remote Deck FIT 4 Pro REAL V5 is source-ready.
+
+Required before real-device installation:
+1) Huawei App ID
+2) Android signing SHA-256
+3) Watch signing SHA-256
+4) Official Huawei Lite Wearable wearengine.js
+5) Build/sign Android APK in Android Studio
+6) Build/sign Lite Wearable HAP in DevEco Studio
+
+Run:
+python tools/preflight.py
