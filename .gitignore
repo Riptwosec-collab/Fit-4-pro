@@ -1,0 +1,36 @@
+# Secrets / local runtime config
+pc-agent/agent_config.json
+android-companion/local.properties
+local-device-config.json
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+*.cer
+*.crt
+
+# Android build / IDE
+android-companion/.gradle/
+android-companion/.idea/
+android-companion/**/build/
+*.apk
+*.aab
+
+# DevEco / HarmonyOS build / IDE
+watch-lite/.hvigor/
+watch-lite/.idea/
+watch-lite/**/build/
+watch-lite/**/.preview/
+*.hap
+*.app
+
+# Python / OS
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
