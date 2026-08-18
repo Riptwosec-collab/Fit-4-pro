@@ -1,4 +1,6 @@
-# Build & Install — HUAWEI WATCH FIT 4 Pro
+# Build & Install — PC Remote Deck / HUAWEI WATCH FIT 4 Pro
+
+โปรเจกต์นี้เหลือเฉพาะ **PC Remote Deck** แล้ว ไม่รวม Field Core / Bio / Sport / Outdoor modules
 
 ## 1) เตรียมระบบ
 
@@ -6,151 +8,140 @@
 - HUAWEI WATCH FIT 4 Pro ที่จับคู่กับ HUAWEI Health
 - Android Phone สำหรับ Companion
 - Huawei Developer account ที่เปิดใช้ Wear Engine
-- DevEco Studio สำหรับ Lite Wearable project
+- DevEco Studio
 - Android Studio + Android SDK
 - Windows PC + Python 3
 
 ## 2) ตั้งค่า PC Agent
 
-บน Windows เปิด PowerShell/CMD ใน `pc-agent/`:
+เปิด PowerShell/CMD ใน `pc-agent/`:
 
 ```powershell
 python generate_token.py
 python pc_agent.py
 ```
 
-`generate_token.py` จะสร้าง `agent_config.json` พร้อม token แบบสุ่ม
+Default port: `8765`
 
-Default server:
-- Port: `8765`
-- Bind: ตาม `agent_config.json`
+ถ้า Windows Firewall บล็อก ให้ Allow inbound TCP 8765 เฉพาะ Private LAN ที่ไว้ใจได้
 
-ถ้า Windows Firewall บล็อก ให้ Allow inbound TCP 8765 เฉพาะ Private network/LAN ที่ไว้ใจได้
+> ห้าม expose port 8765 ออก Internet โดยตรง
 
-> อย่า expose port 8765 ออก Internet โดยตรง
+## 3) ตั้ง Huawei identities
 
-## 3) สร้าง Huawei identities
-
-ต้องมีค่า:
+ต้องมี:
 - Huawei App ID ของ Android Companion
 - Android SHA-256 signing fingerprint
-- Lite Wearable/Watch SHA-256 signing fingerprint
+- Lite Wearable SHA-256 signing fingerprint
 
 จาก root project:
 
-```bash
-python tools/configure_identity.py \
-  --huawei-app-id YOUR_HUAWEI_APP_ID \
-  --android-fingerprint AA:BB:... \
+```powershell
+python tools/configure_identity.py `
+  --huawei-app-id YOUR_HUAWEI_APP_ID `
+  --android-fingerprint AA:BB:... `
   --watch-fingerprint 11:22:...
 ```
 
-Script จะ patch:
-- Android `com.huawei.hms.client.appid`
-- Android `WATCH_FINGERPRINT`
-- Watch `PHONE_FINGERPRINT`
-- Watch `supportLists`
+## 4) ใส่ Wear Engine SDK ฝั่ง Watch
 
-## 4) ใส่ Huawei Wear Engine SDK ฝั่ง Lite Wearable
+`watch-lite/.../wearengine/wearengine.js` ใน repo เป็น offline stub เท่านั้น
 
-ไฟล์ `watch-lite/.../wearengine/wearengine.js` ที่มากับ package นี้เป็น **offline stub** เพื่อให้โครง source เปิดอ่านได้เท่านั้น
+ดาวน์โหลด official Wear Engine SDK for Lite Wearable แล้วรัน:
 
-ให้ดาวน์โหลด Wear Engine SDK for Lite Wearable จาก Huawei Developer แล้วรัน:
-
-```bash
-python tools/install_wearengine_sdk.py /path/to/wearengine.js
+```powershell
+python tools/install_wearengine_sdk.py C:\path\to\wearengine.js
 ```
-
-ห้ามใช้ stub สำหรับ production
 
 ## 5) Build Android Companion
 
-เปิดโฟลเดอร์:
+เปิด `android-companion/` ด้วย Android Studio
 
-`android-companion/`
-
-ด้วย Android Studio
-
-ก่อน build:
-1. Sync Gradle
-2. ตรวจ Huawei Maven repository
-3. ตรวจ App ID / package / fingerprint
-4. Sign APK ด้วย certificate เดียวกับ fingerprint ที่ตั้งไว้
-5. Install APK บน Android Phone ที่จับคู่ Watch อยู่
+ตรวจ:
+1. Gradle sync สำเร็จ
+2. Huawei Maven repository พร้อม
+3. App ID / package / fingerprint ถูกต้อง
+4. Sign APK ด้วย certificate ที่ลงทะเบียน
+5. Install APK บน Android Phone ที่จับคู่กับ Watch
 
 ใน Companion:
 1. ใส่ IP ของ Windows PC
 2. ใส่ token จาก `pc-agent/agent_config.json`
-3. กด `SAVE PC LINK`
-4. กด `AUTHORIZE WEAR ENGINE`
-5. กด `FIND / REGISTER WATCH`
-6. อนุญาต Wi‑Fi/Location ตาม Android version
-7. ทดสอบ `SCAN WI-FI + SYNC WATCH`
+3. `SAVE PC LINK`
+4. `AUTHORIZE WEAR ENGINE`
+5. `FIND / REGISTER WATCH`
+6. อนุญาต Wi-Fi/Location permissions ที่ Android ต้องใช้สำหรับ Wi-Fi Recon
 
 ## 6) Build Watch Lite Wearable
 
-เปิด:
-
-`watch-lite/`
-
-ด้วย DevEco Studio
+เปิด `watch-lite/` ด้วย DevEco Studio
 
 ตรวจ:
-- Device Type = `liteWearable`
+- Device type = `liteWearable`
 - Design width = `480`
 - Bundle = `com.riptwosec.pcremotedeck.watch`
-- `supportLists` ตรงกับ Android package + Android fingerprint
-- Wear Engine SDK จริงถูกวางแทน stub
-- Signing profile ตรงกับ fingerprint ที่ Android Companion ใช้เป็น `WATCH_FINGERPRINT`
+- `supportLists` ตรงกับ Android package + fingerprint
+- Official `wearengine.js` ถูกติดตั้งแล้ว
+- Signing profile ตรงกับ `WATCH_FINGERPRINT`
 
-จากนั้น Build HAP และติดตั้งผ่าน workflow การ Debug/Install Lite Wearable ของ Huawei
+จากนั้น Build/Run ผ่าน workflow Lite Wearable ของ DevEco Studio
 
-## 7) First run test
+## 7) First Run Test
 
-ลำดับทดสอบแนะนำ:
+ทดสอบตามลำดับ:
 
 1. เปิด PC Agent
 2. เปิด Android Companion
 3. Authorize Wear Engine
 4. Discover/Register Watch
 5. เปิด PC Remote Deck บน Watch
-6. กด `LOCK`, `PLAY`, `MUTE` เพื่อทดสอบ end-to-end
-7. เปิด `WI-FI RECON` → Scan จาก Watch → ดูผลที่ Phone ส่งกลับ
-8. เปิด `BIO TELEMETRY` → Start HR
-9. เปิด `MOTION COMMAND` → Calibrate → Arm
-10. เปิด `TACTICAL NAV` → Compass
-11. เปิด `ATMOSPHERIC` → Pressure
+6. ทดสอบ `LOCK`
+7. ทดสอบ `PLAY / MUTE / NEXT / PREV`
+8. ทดสอบ `SCREENSHOT`
+9. ทดสอบ `ALT+TAB / WIN+D`
+10. เปิด `APP LAUNCHER`
+11. เปิด `MOTION COMMAND` → Calibrate → Arm
+12. เปิด `WI-FI RECON` → Scan → ตรวจข้อมูลจาก Phone
+13. เปิด `VOICE COMMAND`
+14. ทดสอบ `BATTLE STATION / DEEP FOCUS`
 
-## 8) ความหมายของสถานะ
+## 8) Motion Command
 
-- `WATCH` = ประมวลผลบน Watch API
-- `PHONE` = ต้องใช้ Android Companion
-- `PC` = ต้องใช้ PC Agent
-- `CACHED` = ใช้ข้อมูลล่าสุดที่ cache
-- `API GATED` = Hardware อาจมี แต่ Third-party API/permission ยังไม่พร้อม
-- `UNAVAILABLE` = ไม่เปิดให้ใช้ใน build ปัจจุบัน
+```text
+FLICK RIGHT  → NEXT TRACK
+FLICK LEFT   → PREVIOUS TRACK
+DOUBLE TWIST → PLAY / PAUSE
+SHAKE        → MUTE
+```
+
+มี confidence threshold + cooldown ลด false positive
 
 ## 9) Troubleshooting
 
 ### PHONE LINK FAILED
-- Android Companion ยังไม่ได้ Authorize Wear Engine
-- Watch package/fingerprint ไม่ตรง
+- Wear Engine ยังไม่ได้ authorize
+- package/fingerprint ไม่ตรง
 - Watch app ยังไม่ได้ติดตั้ง
 
 ### WI-FI PERMISSION REQUIRED
-- เปิด permission ที่ Companion ขอ
-- Android รุ่นใหม่อาจมีข้อกำหนด Nearby Wi‑Fi / Location ตาม API level
+- เปิด Nearby Wi-Fi / Location permission ตาม Android version
 
 ### SCAN LIMITED
-- Android กำลัง throttle Wi‑Fi scan
-- App จะใช้ recent scan results และระบุว่า CACHED
+- Android throttle Wi-Fi scan
+- ระบบจะใช้ recent result และไม่อ้างว่าเป็น scan ใหม่
 
 ### PC command ไม่ทำงาน
 - ตรวจ PC IP
 - ตรวจ token
 - ตรวจ Windows Firewall
-- PC และ Phone ต้องเข้าถึงกันผ่าน LAN
+- PC และ Phone ต้องเชื่อมถึงกันผ่าน LAN
 
-### DEPTH / LIGHT SENSOR ไม่ทำงาน
-- อย่าสรุปจาก Hardware spec อย่างเดียวว่ Third-party Lite Wearable API เปิด raw access
-- หน้าดังกล่าวจะใช้ API GATED / UNAVAILABLE / Phone fallback ตาม capability
+## 10) สิ่งที่ไม่มีใน Repo นี้แล้ว
+
+- Bio / Sleep
+- Sports / Running / Aqua / Golf
+- Navigation / Breadcrumb / Geo Anchor
+- Atmospheric / Solar / Heat / Altitude / Sky
+- Tactical / Depth / Emergency / Grid-Down
+
+ทั้งหมดถูกแยกไปโปรเจกต์ **Field Core** แล้ว
