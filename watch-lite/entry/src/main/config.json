@@ -2,33 +2,69 @@
   "app": {
     "bundleName": "com.riptwosec.pcremotedeck.watch",
     "vendor": "Riptwosec",
-    "version": {"code": 6002000, "name": "6.2.0"}
+    "version": {
+      "code": 7000000,
+      "name": "7.0.0"
+    }
   },
   "deviceConfig": {},
   "module": {
     "package": "com.riptwosec.pcremotedeck.watch",
     "name": ".MainAbility",
     "mainAbility": ".MainAbility",
-    "deviceType": ["liteWearable"],
-    "distro": {"deliveryWithInstall": true, "moduleName": "entry", "moduleType": "entry", "installationFree": false},
-    "abilities": [{
-      "name": ".MainAbility",
-      "icon": "$media:icon",
-      "label": "$string:app_name",
-      "description": "$string:description",
-      "type": "page",
-      "launchType": "standard",
-      "skills": [{"entities": ["entity.system.home"], "actions": ["action.system.home"]}],
-      "srcLanguage": "js",
-      "srcPath": "MainAbility"
-    }],
-    "js": [{"pages": ["pages/index/index"], "name": ".MainAbility", "window": {"designWidth": 480, "autoDesignWidth": false}}],
-    "reqPermissions": [
-      {"name": "ohos.permission.VIBRATE"},
-      {"name": "ohos.permission.ACTIVITY_MOTION"},
-      {"name": "ohos.permission.ACCELEROMETER"},
-      {"name": "ohos.permission.GYROSCOPE"}
+    "deviceType": [
+      "liteWearable"
     ],
-    "metaData": {"customizeData": [{"name": "supportLists", "value": "com.riptwosec.pcremotedeck:REPLACE_WITH_ANDROID_SHA256_FINGERPRINT", "extra": ""}]}
+    "distro": {
+      "deliveryWithInstall": true,
+      "moduleName": "entry",
+      "moduleType": "entry",
+      "installationFree": false
+    },
+    "abilities": [
+      {
+        "name": ".MainAbility",
+        "icon": "$media:icon",
+        "label": "$string:app_name",
+        "description": "$string:description",
+        "type": "page",
+        "launchType": "standard",
+        "skills": [
+          {
+            "entities": ["entity.system.home"],
+            "actions": ["action.system.home"]
+          }
+        ],
+        "srcLanguage": "js",
+        "srcPath": "MainAbility"
+      }
+    ],
+    "js": [
+      {
+        "pages": ["pages/index/index"],
+        "name": ".MainAbility",
+        "window": {
+          "designWidth": 480,
+          "autoDesignWidth": false
+        }
+      }
+    ],
+    "reqPermissions": [
+      {"name":"ohos.permission.VIBRATE"},
+      {"name":"ohos.permission.LOCATION"},
+      {"name":"ohos.permission.READ_HEALTH_DATA"},
+      {"name":"ohos.permission.ACTIVITY_MOTION"},
+      {"name":"ohos.permission.ACCELEROMETER"},
+      {"name":"ohos.permission.GYROSCOPE"}
+    ],
+    "metaData": {
+      "customizeData": [
+        {
+          "name": "supportLists",
+          "value": "com.riptwosec.pcremotedeck:REPLACE_WITH_ANDROID_SHA256_FINGERPRINT",
+          "extra": ""
+        }
+      ]
+    }
   }
 }
