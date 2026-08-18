@@ -1,8 +1,8 @@
 {
-  "project": "PC Remote Deck FIT 4 Pro V6.1",
+  "project": "PC Remote Deck FIT 4 Pro V6.2",
   "branch": "main",
   "pcRemoteOnly": true,
-  "watchVersion": "6.1.0",
+  "watchVersion": "6.2.0",
   "androidVersion": "6.1-fit4pro",
   "sourceReady": true,
   "signedBinariesIncluded": false,
@@ -15,6 +15,23 @@
     "lanDiscovery": true,
     "lanDiscoveryUdpPort": 8766,
     "lanDiscoveryLeaksSecret": false
+  },
+  "v62": {
+    "masterpieceAnimatedHud": true,
+    "fullPageModuleVisuals": true,
+    "categoryFillPass": true,
+    "globalScanBeam": true,
+    "statusPulse": true,
+    "dialSweep": true,
+    "eqAnimation": true,
+    "networkRadar": true,
+    "wifiRadar": true,
+    "motionAnimation": true,
+    "voicePulse": true,
+    "protocolFlow": true,
+    "notificationPulse": true,
+    "trustShieldPulse": true,
+    "fakeLiveDataAdded": false
   },
   "security": {
     "arbitraryShellEndpoint": false,
