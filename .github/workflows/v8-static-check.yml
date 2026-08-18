@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: '22'
       - name: Python syntax
-        run: python -m py_compile pc-agent/pc_agent.py pc-agent/pc_agent_pro.py pc-agent/pro_support.py pc-agent/pro_macro.py pc-agent/pro_engine.py pc-agent/discovery_service.py pc-agent/pair_device.py
+        run: python -m py_compile pc-agent/pc_agent.py pc-agent/pc_agent_pro.py pc-agent/pro_support.py pc-agent/pro_macro.py pc-agent/pro_engine.py pc-agent/discovery_service.py pc-agent/pair_device.py tools/preflight.py
       - name: Watch JavaScript syntax
         run: |
           node --check watch-lite/entry/src/main/js/MainAbility/common/featureCatalog.js
@@ -45,3 +45,5 @@ jobs:
           assert not bad, f'FIELD CORE categories leaked into PC Remote Deck: {bad}'
           print('PC-only scope OK')
           PY
+      - name: V8 preflight
+        run: python tools/preflight.py
