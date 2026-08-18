@@ -1,4 +1,8 @@
-PC Remote Deck FIT 4 Pro REAL V5 is source-ready.
+PC Remote Deck FIT 4 Pro V8 Pro Control Platform is source-ready after static validation.
+
+Scope:
+- PC Remote Deck / PC Control only
+- FIELD CORE is a separate application
 
 Required before real-device installation:
 1) Huawei App ID
@@ -7,6 +11,11 @@ Required before real-device installation:
 4) Official Huawei Lite Wearable wearengine.js
 5) Build/sign Android APK in Android Studio
 6) Build/sign Lite Wearable HAP in DevEco Studio
+7) Physical Watch/Phone/Windows runtime testing
 
 Run:
 python tools/preflight.py
+
+Windows agent entry point:
+pc-agent\start_v6.ps1
+(or pc-agent\run_agent.bat)
