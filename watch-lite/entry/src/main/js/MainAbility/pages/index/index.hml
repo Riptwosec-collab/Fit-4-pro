@@ -1,23 +1,24 @@
 <stack class="root" onswipe="swipeEvent">
-  <div if="{{view == 'home'}}" class="page">
-    <div class="brand"><text class="brand-main">PC REMOTE DECK</text><text class="brand-sub">FIT 4 PRO</text></div>
-    <div class="status-panel">
-      <div class="status-row"><text class="label">PHONE</text><text class="ok">{{connectionState}}</text></div>
-      <div class="status-row"><text class="label">PC</text><text class="value">{{pcState}}</text></div>
-      <div class="status-row"><text class="label">BATTERY</text><text class="value">{{watchBattery}}%</text></div>
-      <div class="status-row"><text class="label">MODE</text><text class="value">{{powerProfile}}</text></div>
+  <div if="{{view == 'home'}}" class="page hud-page">
+    <div class="hud-top">
+      <div class="hud-left"><text class="hud-big">{{watchBattery}}%</text><text class="hud-tiny">WATCH BAT</text></div>
+      <div class="hud-right"><text class="hud-tiny">STATUS</text><text class="secure">SECURE</text></div>
     </div>
-    <div class="quick-row"><input type="button" class="quick" value="LOCK" onclick="quickLock"/><input type="button" class="quick" value="MUTE" onclick="quickMute"/></div>
-    <div class="quick-row"><input type="button" class="quick" value="PLAY" onclick="quickPlay"/><input type="button" class="quick" value="SYNC" onclick="quickSync"/></div>
-    <div class="cat-row"><input type="button" class="cat" value="CONTROL" onclick="catControl"/><input type="button" class="cat" value="APPS" onclick="catApps"/></div>
-    <div class="cat-row"><input type="button" class="cat" value="SMART" onclick="catSmart"/><input type="button" class="cat" value="NETWORK" onclick="catNetwork"/></div>
-    <div class="cat-row"><input type="button" class="cat-wide" value="SYSTEM" onclick="catSystem"/></div>
-    <text class="footer">27 MODULES • V6.1 • 480x408</text>
+    <div class="module-head"><text class="module-title">FAVORITES</text><text class="module-sub">— PC CONTROL —</text></div>
+    <div class="scan-line"></div>
+    <div class="dial-zone">
+      <div class="dial-outer"><div class="dial-mid"><div class="dial-inner"><text class="dial-value">{{cpu}}</text><text class="dial-label">CPU LOAD</text></div></div></div>
+    </div>
+    <div class="primary-row"><input type="button" class="primary active" value="▶  PLAY" onclick="quickPlay"/><input type="button" class="primary" value="MUTE PC" onclick="quickMute"/></div>
+    <div class="macro-head"><text class="macro-title">● FAVORITE MACROS</text><text class="macro-state">{{pcState}}</text></div>
+    <div class="macro-row"><input type="button" class="macro-btn" value="LOCK" onclick="quickLock"/><input type="button" class="macro-btn" value="SYNC" onclick="quickSync"/></div>
+    <div class="dock"><input type="button" class="dock-btn dock-on" value="★" onclick="catControl"/><input type="button" class="dock-btn" value="APP" onclick="catApps"/><input type="button" class="dock-btn" value="AI" onclick="catSmart"/><input type="button" class="dock-btn" value="NET" onclick="catNetwork"/><input type="button" class="dock-btn" value="SYS" onclick="catSystem"/></div>
   </div>
 
-  <div if="{{showControl}}" class="page">
-    <div class="topbar"><input type="button" class="back" value="&lt;" onclick="goHome"/><text class="title">CONTROL</text><text class="mini">{{connectionState}}</text></div>
-    <list class="feature-list">
+  <div if="{{showControl}}" class="page hud-page">
+    <div class="hud-top"><div class="hud-left"><text class="hud-big">CTRL</text><text class="hud-tiny">PC REMOTE</text></div><div class="hud-right"><text class="hud-tiny">STATUS</text><text class="secure">{{connectionState}}</text></div></div>
+    <div class="module-head compact"><text class="module-title">CONTROL</text><text class="module-sub">— COMMAND MODULES —</text></div>
+    <list class="feature-list cyber-list">
       <list-item class="feature-row"><input type="button" class="feature-btn" value="FAVORITES" onclick="f0"/><text class="source">PC</text></list-item>
       <list-item class="feature-row"><input type="button" class="feature-btn" value="PC MONITOR PRO" onclick="f1"/><text class="source">LIVE</text></list-item>
       <list-item class="feature-row"><input type="button" class="feature-btn" value="NOW PLAYING" onclick="f2"/><text class="source">PC</text></list-item>
@@ -27,63 +28,46 @@
       <list-item class="feature-row"><input type="button" class="feature-btn" value="TERMINAL MACROS" onclick="f14"/><text class="source">SAFE</text></list-item>
       <list-item class="feature-row"><input type="button" class="feature-btn" value="COMMAND CENTER" onclick="f21"/><text class="source">PC</text></list-item>
       <list-item class="feature-row"><input type="button" class="feature-btn" value="AUDIO MIXER PRO" onclick="f40"/><text class="source">AUDIO</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="WINDOW CENTER" onclick="f41"/><text class="source">WINDOWS</text></list-item>
+      <list-item class="feature-row"><input type="button" class="feature-btn" value="WINDOW CENTER" onclick="f41"/><text class="source">WIN</text></list-item>
     </list>
+    <div class="dock"><input type="button" class="dock-btn dock-on" value="★" onclick="catControl"/><input type="button" class="dock-btn" value="APP" onclick="catApps"/><input type="button" class="dock-btn" value="AI" onclick="catSmart"/><input type="button" class="dock-btn" value="NET" onclick="catNetwork"/><input type="button" class="dock-btn" value="SYS" onclick="catSystem"/></div>
   </div>
 
-  <div if="{{showApps}}" class="page">
-    <div class="topbar"><input type="button" class="back" value="&lt;" onclick="goHome"/><text class="title">APPS</text><text class="mini">{{connectionState}}</text></div>
-    <list class="feature-list">
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="APP LAUNCHER PRO" onclick="f6"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="STREAM HUB" onclick="f11"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="CAMERA PRO" onclick="f15"/><text class="source">PHONE</text></list-item>
-    </list>
+  <div if="{{showApps}}" class="page hud-page">
+    <div class="hud-top"><div class="hud-left"><text class="hud-big">APP</text><text class="hud-tiny">LAUNCH GRID</text></div><div class="hud-right"><text class="hud-tiny">STATUS</text><text class="secure">{{connectionState}}</text></div></div>
+    <div class="module-head compact"><text class="module-title">APPS</text><text class="module-sub">— LAUNCH & STREAM —</text></div>
+    <list class="feature-list cyber-list"><list-item class="feature-row"><input type="button" class="feature-btn" value="APP LAUNCHER PRO" onclick="f6"/><text class="source">PC</text></list-item><list-item class="feature-row"><input type="button" class="feature-btn" value="STREAM HUB" onclick="f11"/><text class="source">PC</text></list-item><list-item class="feature-row"><input type="button" class="feature-btn" value="CAMERA PRO" onclick="f15"/><text class="source">PHONE</text></list-item></list>
+    <div class="dock"><input type="button" class="dock-btn" value="★" onclick="catControl"/><input type="button" class="dock-btn dock-on" value="APP" onclick="catApps"/><input type="button" class="dock-btn" value="AI" onclick="catSmart"/><input type="button" class="dock-btn" value="NET" onclick="catNetwork"/><input type="button" class="dock-btn" value="SYS" onclick="catSystem"/></div>
   </div>
 
-  <div if="{{showSmart}}" class="page">
-    <div class="topbar"><input type="button" class="back" value="&lt;" onclick="goHome"/><text class="title">SMART</text><text class="mini">{{contextProfile}}</text></div>
-    <list class="feature-list">
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="AI LIMITS" onclick="f3"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="CONTEXT ENGINE" onclick="f4"/><text class="source">LIVE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="SMART ROOM" onclick="f8"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="ASSET RADAR" onclick="f18"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="PROTOCOL ENGINE V2" onclick="f23"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="MOTION COMMAND" onclick="f26"/><text class="source">WATCH</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="VOICE COMMAND PRO" onclick="f31"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="MACRO DECK" onclick="f42"/><text class="source">PC</text></list-item>
-    </list>
+  <div if="{{showSmart}}" class="page hud-page">
+    <div class="hud-top"><div class="hud-left"><text class="hud-big">AI</text><text class="hud-tiny">SMART CORE</text></div><div class="hud-right"><text class="hud-tiny">PROFILE</text><text class="secure">{{contextProfile}}</text></div></div>
+    <div class="module-head compact"><text class="module-title">SMART</text><text class="module-sub">— AUTOMATION CORE —</text></div>
+    <list class="feature-list cyber-list"><list-item class="feature-row"><input type="button" class="feature-btn" value="AI LIMITS" onclick="f3"/><text class="source">PHONE</text></list-item><list-item class="feature-row"><input type="button" class="feature-btn" value="CONTEXT ENGINE" onclick="f4"/><text class="source">LIVE</text></list-item><list-item class="feature-row"><input type="button" class="feature-btn" value="SMART ROOM" onclick="f8"/><text class="source">PHONE</text></list-item><list-item class="feature-row"><input type="button" class="feature-btn" value="ASSET RADAR" onclick="f18"/><text class="source">PHONE</text></list-item><list-item class="feature-row"><input type="button" class="feature-btn" value="PROTOCOL ENGINE V2" onclick="f23"/><text class="source">PC</text></list-item><list-item class="feature-row"><input type="button" class="feature-btn" value="MOTION COMMAND" onclick="f26"/><text class="source">WATCH</text></list-item><list-item class="feature-row"><input type="button" class="feature-btn" value="VOICE COMMAND PRO" onclick="f31"/><text class="source">PHONE</text></list-item><list-item class="feature-row"><input type="button" class="feature-btn" value="MACRO DECK" onclick="f42"/><text class="source">PC</text></list-item></list>
+    <div class="dock"><input type="button" class="dock-btn" value="★" onclick="catControl"/><input type="button" class="dock-btn" value="APP" onclick="catApps"/><input type="button" class="dock-btn dock-on" value="AI" onclick="catSmart"/><input type="button" class="dock-btn" value="NET" onclick="catNetwork"/><input type="button" class="dock-btn" value="SYS" onclick="catSystem"/></div>
   </div>
 
-  <div if="{{showNetwork}}" class="page">
-    <div class="topbar"><input type="button" class="back" value="&lt;" onclick="goHome"/><text class="title">NETWORK</text><text class="mini">{{ping}}</text></div>
-    <list class="feature-list">
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="NETWORK COMMAND" onclick="f12"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="WI-FI RECON PRO" onclick="f39"/><text class="source">PHONE</text></list-item>
-    </list>
+  <div if="{{showNetwork}}" class="page hud-page">
+    <div class="hud-top"><div class="hud-left"><text class="hud-big">NET</text><text class="hud-tiny">LINK INTEL</text></div><div class="hud-right"><text class="hud-tiny">PING</text><text class="secure">{{ping}}</text></div></div>
+    <div class="module-head compact"><text class="module-title">NETWORK</text><text class="module-sub">— TELEMETRY & RECON —</text></div>
+    <list class="feature-list cyber-list"><list-item class="feature-row"><input type="button" class="feature-btn" value="NETWORK COMMAND" onclick="f12"/><text class="source">PC</text></list-item><list-item class="feature-row"><input type="button" class="feature-btn" value="WI-FI RECON PRO" onclick="f39"/><text class="source">PHONE</text></list-item></list>
+    <div class="dock"><input type="button" class="dock-btn" value="★" onclick="catControl"/><input type="button" class="dock-btn" value="APP" onclick="catApps"/><input type="button" class="dock-btn" value="AI" onclick="catSmart"/><input type="button" class="dock-btn dock-on" value="NET" onclick="catNetwork"/><input type="button" class="dock-btn" value="SYS" onclick="catSystem"/></div>
   </div>
 
-  <div if="{{showSystem}}" class="page">
-    <div class="topbar"><input type="button" class="back" value="&lt;" onclick="goHome"/><text class="title">SYSTEM</text><text class="mini">{{connectionState}}</text></div>
-    <list class="feature-list">
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="SYSTEM" onclick="f10"/><text class="source">WATCH</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="SYSTEM LOG" onclick="f25"/><text class="source">WATCH</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="NOTIFICATION BRIDGE" onclick="f43"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="TRUST CENTER" onclick="f44"/><text class="source">PHONE</text></list-item>
-    </list>
+  <div if="{{showSystem}}" class="page hud-page">
+    <div class="hud-top"><div class="hud-left"><text class="hud-big">SYS</text><text class="hud-tiny">TRUST CORE</text></div><div class="hud-right"><text class="hud-tiny">STATUS</text><text class="secure">SECURE</text></div></div>
+    <div class="module-head compact"><text class="module-title">SYSTEM</text><text class="module-sub">— LOGS & TRUST —</text></div>
+    <list class="feature-list cyber-list"><list-item class="feature-row"><input type="button" class="feature-btn" value="SYSTEM" onclick="f10"/><text class="source">WATCH</text></list-item><list-item class="feature-row"><input type="button" class="feature-btn" value="SYSTEM LOG" onclick="f25"/><text class="source">WATCH</text></list-item><list-item class="feature-row"><input type="button" class="feature-btn" value="NOTIFICATION BRIDGE" onclick="f43"/><text class="source">PC</text></list-item><list-item class="feature-row"><input type="button" class="feature-btn" value="TRUST CENTER" onclick="f44"/><text class="source">PHONE</text></list-item></list>
+    <div class="dock"><input type="button" class="dock-btn" value="★" onclick="catControl"/><input type="button" class="dock-btn" value="APP" onclick="catApps"/><input type="button" class="dock-btn" value="AI" onclick="catSmart"/><input type="button" class="dock-btn" value="NET" onclick="catNetwork"/><input type="button" class="dock-btn dock-on" value="SYS" onclick="catSystem"/></div>
   </div>
 
-  <div if="{{view == 'detail'}}" class="page detail-page">
-    <div class="topbar"><input type="button" class="back" value="&lt;" onclick="goList"/><text class="title">{{selectedTitle}}</text><text class="mini">{{selectedSource}}</text></div>
-    <div class="detail-card">
-      <text class="detail-desc">{{selectedDesc}}</text>
-      <div class="metric-row"><text class="label">STATE</text><text class="ok">{{featureState}}</text></div>
-      <div class="metric-row"><text class="label">SOURCE</text><text class="value">{{selectedSource}}</text></div>
-      <div class="metric-row"><text class="label">DATA</text><text class="value small-value">{{featureData}}</text></div>
-    </div>
-    <input if="{{action1Label != ''}}" type="button" class="action" value="{{action1Label}}" onclick="detailAction1"/>
-    <input if="{{action2Label != ''}}" type="button" class="action" value="{{action2Label}}" onclick="detailAction2"/>
-    <input if="{{action3Label != ''}}" type="button" class="action" value="{{action3Label}}" onclick="detailAction3"/>
-    <input if="{{action4Label != ''}}" type="button" class="action danger" value="{{action4Label}}" onclick="detailAction4"/>
+  <div if="{{view == 'detail'}}" class="page hud-page detail-page">
+    <div class="hud-top"><div class="hud-left"><input type="button" class="hud-back" value="‹" onclick="goList"/><text class="hud-tiny">MODULE</text></div><div class="hud-right"><text class="hud-tiny">STATUS</text><text class="secure">{{featureState}}</text></div></div>
+    <div class="module-head"><text class="module-title detail-title">{{selectedTitle}}</text><text class="module-sub">— {{selectedSource}} —</text></div>
+    <div class="scan-line"></div>
+    <div class="detail-hud"><div class="detail-ring"><text class="detail-data">{{featureData}}</text></div><text class="detail-desc">{{selectedDesc}}</text></div>
+    <div class="detail-actions"><input if="{{action1Label != ''}}" type="button" class="hud-action active" value="{{action1Label}}" onclick="detailAction1"/><input if="{{action2Label != ''}}" type="button" class="hud-action" value="{{action2Label}}" onclick="detailAction2"/><input if="{{action3Label != ''}}" type="button" class="hud-action" value="{{action3Label}}" onclick="detailAction3"/><input if="{{action4Label != ''}}" type="button" class="hud-action danger" value="{{action4Label}}" onclick="detailAction4"/></div>
     <text class="message">{{message}}</text>
+    <div class="dock"><input type="button" class="dock-btn" value="★" onclick="catControl"/><input type="button" class="dock-btn" value="APP" onclick="catApps"/><input type="button" class="dock-btn" value="AI" onclick="catSmart"/><input type="button" class="dock-btn" value="NET" onclick="catNetwork"/><input type="button" class="dock-btn" value="SYS" onclick="catSystem"/></div>
   </div>
 </stack>
