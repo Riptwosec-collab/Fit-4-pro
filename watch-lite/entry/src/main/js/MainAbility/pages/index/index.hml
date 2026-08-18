@@ -1,6 +1,6 @@
 <stack class="root" onswipe="swipeEvent">
   <div class="grid-layer"></div>
-  <div class="scan-beam"></div>
+  <div if="{{powerProfile != 'ENDURANCE'}}" class="scan-beam"></div>
 
   <!-- HOME -->
   <div if="{{view == 'home'}}" class="page masterpiece-page">
@@ -29,13 +29,13 @@
     </div>
 
     <div class="volume-panel">
-      <div class="dial-pulse-ring"></div>
+      <div if="{{powerProfile != 'ENDURANCE'}}" class="dial-pulse-ring"></div>
       <div class="volume-dial">
         <div class="volume-ticks"></div>
         <div class="volume-active-clip"><div class="volume-active-ring"></div></div>
         <div class="volume-core"><text class="volume-value">{{masterVolume}}</text><text class="volume-unit">%</text></div>
       </div>
-      <div class="dial-sweep"></div>
+      <div if="{{powerProfile != 'ENDURANCE'}}" class="dial-sweep"></div>
     </div>
 
     <div class="eq-row"><div class="eq-bar eq1"></div><div class="eq-bar eq2"></div><div class="eq-bar eq3"></div><div class="eq-bar eq4"></div><div class="eq-bar eq5"></div><div class="eq-bar eq6"></div><div class="eq-bar eq7"></div></div>
@@ -134,7 +134,7 @@
     <div class="header"><input type="button" class="back-cyber" value="‹" onclick="goHome"/><div class="status-area"><text class="status-title">PING</text><text class="status-secure">{{ping}}</text></div></div>
     <div class="page-header compact-header"><text class="page-title">NETWORK</text><div class="subtitle-row"><div class="subtitle-line pulse-line"></div><text class="page-subtitle">TELEMETRY &amp; RECON</text><div class="subtitle-line pulse-line"></div></div></div>
     <div class="network-radar">
-      <div class="radar-ring r1"></div><div class="radar-ring r2"></div><div class="radar-ring r3"></div><div class="radar-sweep"></div><div class="radar-core"><text class="radar-value">{{ping}}</text><text class="radar-label">LATENCY</text></div>
+      <div class="radar-ring r1"></div><div class="radar-ring r2"></div><div class="radar-ring r3"></div><div if="{{powerProfile != 'ENDURANCE'}}" class="radar-sweep"></div><div class="radar-core"><text class="radar-value">{{ping}}</text><text class="radar-label">LATENCY</text></div>
     </div>
     <div class="network-bars">
       <div class="net-bar-row"><text class="net-k">PC LINK</text><div class="net-track"><div class="net-fill n1"></div></div><text class="net-v">{{pcState}}</text></div>
@@ -201,7 +201,7 @@
     </div>
 
     <div if="{{selectedId == '5'}}" class="module-stage">
-      <div class="mouse-radar"><div class="mouse-ring mr1"></div><div class="mouse-ring mr2"></div><div class="mouse-cross h"></div><div class="mouse-cross v"></div><div class="mouse-dot"></div></div>
+      <div class="mouse-radar"><div class="mouse-ring mr1"></div><div class="mouse-ring mr2"></div><div class="mouse-cross h"></div><div class="mouse-cross v"></div><div if="{{powerProfile != 'ENDURANCE'}}" class="mouse-dot"></div></div>
       <div class="module-side"><div class="module-stat"><text class="module-k">GYRO</text><text class="module-v">{{featureState}}</text></div><div class="module-stat"><text class="module-k">SENS</text><text class="module-v">{{airMouseSensitivity}}</text></div><div class="module-stat"><text class="module-k">MODE</text><text class="module-v small-module">WRIST CURSOR</text></div></div>
     </div>
 
@@ -237,7 +237,7 @@
     </div>
 
     <div if="{{selectedId == '12'}}" class="module-stage vertical-stage">
-      <div class="link-visual"><div class="link-node">PC</div><div class="link-line"><div class="link-packet"></div></div><div class="link-node">NET</div></div>
+      <div class="link-visual"><div class="link-node">PC</div><div class="link-line"><div if="{{powerProfile != 'ENDURANCE'}}" class="link-packet"></div></div><div class="link-node">NET</div></div>
       <div class="mini-stat-row"><div class="mini-stat"><text class="mini-k">PING</text><text class="mini-v">{{ping}}</text></div><div class="mini-stat wide-stat"><text class="mini-k">DETAIL</text><text class="mini-v tiny-v">{{featureData}}</text></div></div>
     </div>
 
@@ -257,12 +257,12 @@
     </div>
 
     <div if="{{selectedId == '21'}}" class="module-stage vertical-stage">
-      <div class="command-core"><div class="command-pulse"></div><text class="command-state">{{pcState}}</text><text class="command-app">{{activeApp}}</text></div>
+      <div class="command-core"><div if="{{powerProfile != 'ENDURANCE'}}" class="command-pulse"></div><text class="command-state">{{pcState}}</text><text class="command-app">{{activeApp}}</text></div>
       <div class="context-slots"><text class="slot-chip">BATTLE</text><text class="slot-chip">FOCUS</text><text class="slot-chip">LOCK</text><text class="slot-chip">SYNC</text></div>
     </div>
 
     <div if="{{selectedId == '23'}}" class="module-stage vertical-stage">
-      <div class="protocol-flow"><div class="flow-node active-node">1</div><div class="flow-line"><div class="flow-pulse"></div></div><div class="flow-node">2</div><div class="flow-line"><div class="flow-pulse delay"></div></div><div class="flow-node">3</div></div>
+      <div class="protocol-flow"><div class="flow-node active-node">1</div><div class="flow-line"><div if="{{powerProfile != 'ENDURANCE'}}" class="flow-pulse"></div></div><div class="flow-node">2</div><div class="flow-line"><div if="{{powerProfile != 'ENDURANCE'}}" class="flow-pulse delay"></div></div><div class="flow-node">3</div></div>
       <div class="protocol-labels"><text>BATTLE</text><text>FOCUS</text><text>MACROS</text></div>
       <text class="module-note">All steps validated against the safe allowlist.</text>
     </div>
@@ -272,17 +272,17 @@
     </div>
 
     <div if="{{selectedId == '26'}}" class="module-stage vertical-stage">
-      <div class="motion-orbit"><div class="motion-ring"></div><div class="motion-wrist">⌁</div></div>
+      <div class="motion-orbit"><div if="{{powerProfile != 'ENDURANCE'}}" class="motion-ring"></div><div class="motion-wrist">⌁</div></div>
       <div class="gesture-grid"><text class="gesture-chip">FLICK → NEXT</text><text class="gesture-chip">FLICK ← PREV</text><text class="gesture-chip">TWIST ×2 PLAY</text><text class="gesture-chip">SHAKE MUTE</text></div>
     </div>
 
     <div if="{{selectedId == '31'}}" class="module-stage vertical-stage">
-      <div class="voice-core"><div class="voice-ring vr1"></div><div class="voice-ring vr2"></div><text class="voice-icon">MIC</text></div>
+      <div class="voice-core"><div if="{{powerProfile != 'ENDURANCE'}}" class="voice-ring vr1"></div><div if="{{powerProfile != 'ENDURANCE'}}" class="voice-ring vr2"></div><text class="voice-icon">MIC</text></div>
       <div class="voice-examples"><text class="voice-chip">LOCK PC</text><text class="voice-chip">OPEN CHROME</text><text class="voice-chip">CPU STATUS</text></div>
     </div>
 
     <div if="{{selectedId == '39'}}" class="module-stage">
-      <div class="wifi-radar"><div class="wifi-ring wr1"></div><div class="wifi-ring wr2"></div><div class="wifi-ring wr3"></div><div class="wifi-sweep"></div><text class="wifi-center">WI-FI</text></div>
+      <div class="wifi-radar"><div class="wifi-ring wr1"></div><div class="wifi-ring wr2"></div><div class="wifi-ring wr3"></div><div if="{{powerProfile != 'ENDURANCE'}}" class="wifi-sweep"></div><text class="wifi-center">WI-FI</text></div>
       <div class="module-side"><div class="module-stat tall-stat"><text class="module-k">RESULT</text><text class="module-v wrap-module">{{featureData}}</text></div><div class="module-stat"><text class="module-k">RULE</text><text class="module-v small-module">OPEN ≠ FREE</text></div></div>
     </div>
 
@@ -302,12 +302,12 @@
     </div>
 
     <div if="{{selectedId == '43'}}" class="module-stage vertical-stage">
-      <div class="notification-core"><div class="bell-pulse"></div><text class="notification-count">{{notificationCount}}</text><text class="notification-label">ALERTS</text></div>
+      <div class="notification-core"><div if="{{powerProfile != 'ENDURANCE'}}" class="bell-pulse"></div><text class="notification-count">{{notificationCount}}</text><text class="notification-label">ALERTS</text></div>
       <div class="provider-panel compact-provider"><text class="provider-title">LATEST</text><text class="provider-state">{{latestNotification}}</text></div>
     </div>
 
     <div if="{{selectedId == '44'}}" class="module-stage vertical-stage">
-      <div class="shield-core"><div class="shield-ring"></div><text class="shield-text">SECURE</text></div>
+      <div class="shield-core"><div if="{{powerProfile != 'ENDURANCE'}}" class="shield-ring"></div><text class="shield-text">SECURE</text></div>
       <div class="trust-grid"><div class="trust-cell"><text class="trust-k">PHONE</text><text class="trust-v">{{connectionState}}</text></div><div class="trust-cell"><text class="trust-k">PC</text><text class="trust-v">{{pcState}}</text></div><div class="trust-cell"><text class="trust-k">AUTH</text><text class="trust-v">HMAC</text></div><div class="trust-cell"><text class="trust-k">REPLAY</text><text class="trust-v">NONCE</text></div></div>
     </div>
 
