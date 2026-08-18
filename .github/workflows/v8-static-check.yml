@@ -3,6 +3,8 @@ name: V8 Static Check
 on:
   push:
     branches: [upgrade/v8-pro-control, main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
