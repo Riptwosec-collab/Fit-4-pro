@@ -1,23 +1,41 @@
 {
-  "project": "PC Remote Deck FIT 4 Pro REAL V5",
+  "project": "PC Remote Deck FIT 4 Pro",
   "branch": "main",
+  "scope": "PC_REMOTE_ONLY",
   "sourceReady": true,
   "signedBinariesIncluded": false,
-  "fileCount": 46,
+  "watchModuleCount": 22,
+  "watchFeatureIds": [0,1,2,3,4,5,6,7,8,9,10,11,12,14,15,18,21,23,25,26,31,39],
   "directories": {
-    "watch-lite": "HUAWEI Lite Wearable app targeting 480x408",
+    "watch-lite": "HUAWEI Lite Wearable PC Remote Deck app targeting 480x408",
     "android-companion": "Android + Huawei Wear Engine + Wi-Fi Recon + voice handoff",
     "pc-agent": "Windows whitelist command agent with token/HMAC/nonce validation",
-    "docs": "Build, capability, protocol, limitations and regression documentation",
-    "tools": "Identity, Wear Engine SDK install and preflight helpers",
-    "legacy": "Compressed V4 zero-regression baseline"
+    "docs": "PC Remote Deck build, capability, protocol and regression documentation",
+    "tools": "Identity, Wear Engine SDK install and PC-only preflight helpers"
   },
-  "baseline": {
-    "path": "legacy/pc_remote_deck_os_masterpiece_field_wifi_v4.html.gz",
-    "bytes": 47468,
-    "sha256": "918e037168819e317caeb93b06e8b8c16315898cfb9313a2b991926a621038f1",
-    "restore": "gzip -dk legacy/pc_remote_deck_os_masterpiece_field_wifi_v4.html.gz"
-  },
+  "excludedToFieldCore": [
+    "Bio Telemetry",
+    "Sleep Readiness",
+    "Sports HUD",
+    "Running Coach",
+    "Aqua Recon",
+    "Golf Caddie",
+    "Navigation",
+    "Silent Navigation",
+    "Atmospheric Scanner",
+    "Tactical Navigation",
+    "Depth HUD",
+    "Tactical Light",
+    "Grid-Down",
+    "Breadcrumb Guardian",
+    "Geo Anchor",
+    "Solar Sentinel",
+    "Thermal Load",
+    "Altitude Sentinel",
+    "Transit Guardian",
+    "Sky Scanner",
+    "Emergency Core"
+  ],
   "configurationRequired": [
     "Huawei Developer App ID",
     "Android signing SHA-256 fingerprint",
