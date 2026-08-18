@@ -2,7 +2,7 @@
   "app": {
     "bundleName": "com.riptwosec.pcremotedeck.watch",
     "vendor": "Riptwosec",
-    "version": {"code": 6000000, "name": "6.0.0"}
+    "version": {"code": 6001000, "name": "6.1.0"}
   },
   "deviceConfig": {},
   "module": {

@@ -1,60 +1,77 @@
-# PC Remote Deck V6 — HUAWEI WATCH FIT 4 Pro
+# PC Remote Deck V6.1 — HUAWEI WATCH FIT 4 Pro
 
-V6 ยังคงเป็น **PC Remote Deck only** และยกระดับจาก remote button deck เป็น wrist PC control system แบบมี live state.
+PC Remote Deck เป็น **PC-control-only** app สำหรับ FIT 4 Pro: Watch สั่งงาน → Android Companion bridge → Windows PC Agent.
 
-## V6 Highlights
+## V6/V6.1 Highlights
 
 - Watch Home V2: CPU / GPU / RAM / Ping / Active App / Context / Alerts
-- PC Monitor Pro: CPU, GPU usage (best-effort Windows counter), RAM, Disk, Network, Top Processes, temperature when Windows exposes it
-- Audio Mixer Pro: master media controls และ optional per-app sessions ผ่าน `pycaw`
-- Window Center: active window / window list / focus / minimize / maximize / close
-- Air Mouse Pro: gyroscope cursor streaming พร้อม sensitivity/dead-zone
-- Macro Deck: safe macro storage/run; Macro Builder อยู่ใน Android Companion
-- Context Engine: Browser / Dev / Media / Game / Meeting / Generic profiles และ contextual action slots
-- Protocol Engine V2: Battle Station / Deep Focus + safe multi-step macros
+- PC Monitor Pro: CPU, GPU best-effort, RAM, Disk, Network, Top Processes, temperature when Windows exposes it
+- Audio Mixer Pro: master controls + optional per-app sessions via `pycaw`
+- Window Center: active/window list + focus/minimize/maximize/close
+- Air Mouse Pro: gyroscope cursor streaming + sensitivity/dead-zone
+- Macro Deck + Android Macro Builder: safe allowlisted multi-step macros
+- Context Engine: Browser / Dev / Media / Game / Meeting / Generic profiles
+- Protocol Engine V2: Battle Station / Deep Focus + safe macros
 - Voice Command Pro: ไทย/อังกฤษ; Sleep/Restart/Shutdown ต้องยืนยันบนโทรศัพท์
-- App Launcher Pro: whitelist เดิม + PC-local `apps.json`
-- Network Command Center: IP / Gateway / DNS / throughput / ping
-- Wi-Fi Recon Pro: OPEN != FREE VERIFIED + RSSI trend
-- Companion Auto Sync: จำ PC IP/token ในเครื่องและ sync dashboard ทุก 12 วินาทีขณะ Companion ทำงาน
-- Notification Bridge: agent alerts เช่น CPU/RAM สูง, macro complete, screenshot
-- Trust Center: peer status + local PC link revoke
+- App Launcher Pro: fixed whitelist + PC-local `apps.json`
+- Network Command: IP / Gateway / DNS / throughput / ping
+- Wi-Fi Recon Pro: `OPEN != FREE VERIFIED` + RSSI trend
+- Notification Bridge + Trust Center
+- Companion Auto Sync: จำ PC link และ sync dashboard ทุก 12 วินาทีขณะ Companion ทำงาน
+- **V6.1 Auto Find PC:** UDP LAN discovery บน port 8766 โดยไม่ส่ง token
+- **V6.1 Local QR Pairing:** `pcremotedeck://pair` deep link; QR อยู่เฉพาะเครื่องและสามารถ rotate credential ได้
 
 ## Security
 
 - ไม่มี arbitrary shell endpoint
 - PC Agent รับเฉพาะ action whitelist
 - Bearer token + HMAC-SHA256 + timestamp + nonce/replay protection
-- Macro step ทุกตัวถูกตรวจ safe allowlist ก่อน save/run
-- Dynamic app launcher เปิดได้เฉพาะ app definition ที่อยู่บน PC เอง
-- Power actions ต้องมี `confirmed=true`; Voice flow แสดง confirmation dialog บนมือถือก่อนส่ง
-- runtime secrets/config (`agent_config.json`, `macros.json`, `apps.json`) ถูก gitignore
+- Macro ทุก step ถูก validate กับ safe allowlist
+- Dynamic app launcher เปิดได้เฉพาะ definition ที่อยู่ฝั่ง PC
+- Risk power actions ต้องมี `confirmed=true`
+- `agent_config.json`, `macros.json`, `apps.json`, `pairing_qr.png`, signing keys ถูก gitignore
+- Pairing QR มี secret token: **ถือว่า QR เป็นรหัสผ่านและลบทิ้งหลัง pairing**
+
+## Quick start on Windows
+
+```powershell
+cd pc-agent
+python generate_token.py
+python pair_device.py
+.\start_v6.ps1
+```
+
+ถ้าต้องการ QR image และ Audio Mixer per-app:
+
+```powershell
+pip install -r requirements-optional.txt
+python pair_device.py --rotate
+```
+
+`--rotate` จะสร้าง token ใหม่และทำให้ credential เดิมใช้ไม่ได้ เหมาะเมื่อต้องการ pair โทรศัพท์เครื่องใหม่หรือ revoke เครื่องเก่า.
+
+## Pair Android Companion
+
+1. เปิด `pairing_qr.png` บน PC
+2. ใช้กล้องมือถือสแกน QR
+3. เลือกเปิด **PC Remote Deck Companion**
+4. Companion จะรับ host/port/token และบันทึก local link
+5. ถ้าไม่ใช้ QR: กด **AUTO FIND PC ON LAN** เพื่อหา IP แล้วใส่ token เอง
+6. Authorize Wear Engine → Find/Register Watch → Sync dashboard
+7. ลบ `pairing_qr.png` หลัง pair
 
 ## Structure
 
 - `watch-lite/` — Lite Wearable UI 480×408
-- `android-companion/` — Wear Engine bridge, auto sync, Voice, Wi-Fi Recon, Macro Builder
-- `pc-agent/` — Windows agent V6
+- `android-companion/` — Huawei Wear Engine, QR/LAN pairing, auto sync, Voice, Wi-Fi, Macro Builder
+- `pc-agent/` — Windows control/telemetry, discovery responder, QR pairing helper
 - `tools/` — identity / SDK / preflight
-- `docs/` — build, capability, regression, V6 upgrade notes
+- `docs/` — build/capability/regression/upgrade notes
 
-## Optional Audio Mixer dependency
+## Provider extension points
 
-บน Windows:
+ฟังก์ชันเดิมเหล่านี้ยังต้องต่อ provider ภายนอกก่อนจึงจะเป็น live จริง: **AI Limits, Smart Room, Camera Pro, Asset Radar, OBS scene control**. ระบบจะแจ้ง provider not configured แทนการสร้างข้อมูลปลอม.
 
-```powershell
-pip install -r pc-agent\requirements-optional.txt
-```
+## Before real FIT 4 Pro build
 
-ถ้าไม่ติดตั้ง `pycaw` แอปยังทำงานได้ แต่ per-app Audio Mixer จะแสดง `OPTIONAL_PYCAW_MISSING` และ master media controls ยังใช้ได้.
-
-## First run
-
-```powershell
-python pc-agent\generate_token.py
-python pc-agent\pc_agent.py
-```
-
-นำ token ไปใส่ Android Companion จากนั้น Authorize Wear Engine → Find/Register Watch → Sync dashboard.
-
-ก่อน build เครื่องจริงยังต้องใส่ Huawei App ID, Android signing fingerprint, Watch signing fingerprint และ official Lite Wearable `wearengine.js` ตาม `docs/BUILD_AND_INSTALL_TH.md`.
+ยังต้องใส่ Huawei App ID, Android signing SHA-256, Watch signing SHA-256 และ official Lite Wearable `wearengine.js`; จากนั้น build/sign ผ่าน Android Studio + DevEco Studio ตาม `docs/BUILD_AND_INSTALL_TH.md`.

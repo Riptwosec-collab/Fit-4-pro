@@ -1,50 +1,35 @@
 {
-  "project": "PC Remote Deck FIT 4 Pro",
+  "project": "PC Remote Deck FIT 4 Pro V6.1",
   "branch": "main",
-  "scope": "PC_REMOTE_ONLY",
+  "pcRemoteOnly": true,
+  "watchVersion": "6.1.0",
+  "androidVersion": "6.1-fit4pro",
   "sourceReady": true,
   "signedBinariesIncluded": false,
-  "watchModuleCount": 22,
-  "watchFeatureIds": [0,1,2,3,4,5,6,7,8,9,10,11,12,14,15,18,21,23,25,26,31,39],
-  "directories": {
-    "watch-lite": "HUAWEI Lite Wearable PC Remote Deck app targeting 480x408",
-    "android-companion": "Android + Huawei Wear Engine + Wi-Fi Recon + voice handoff",
-    "pc-agent": "Windows whitelist command agent with token/HMAC/nonce validation",
-    "docs": "PC Remote Deck build, capability, protocol and regression documentation",
-    "tools": "Identity, Wear Engine SDK install and PC-only preflight helpers"
+  "modules": 27,
+  "architecture": ["watch-lite", "android-companion", "pc-agent"],
+  "v61": {
+    "qrPairing": true,
+    "pairingScheme": "pcremotedeck://pair",
+    "credentialRotation": true,
+    "lanDiscovery": true,
+    "lanDiscoveryUdpPort": 8766,
+    "lanDiscoveryLeaksSecret": false
   },
-  "excludedToFieldCore": [
-    "Bio Telemetry",
-    "Sleep Readiness",
-    "Sports HUD",
-    "Running Coach",
-    "Aqua Recon",
-    "Golf Caddie",
-    "Navigation",
-    "Silent Navigation",
-    "Atmospheric Scanner",
-    "Tactical Navigation",
-    "Depth HUD",
-    "Tactical Light",
-    "Grid-Down",
-    "Breadcrumb Guardian",
-    "Geo Anchor",
-    "Solar Sentinel",
-    "Thermal Load",
-    "Altitude Sentinel",
-    "Transit Guardian",
-    "Sky Scanner",
-    "Emergency Core"
-  ],
+  "security": {
+    "arbitraryShellEndpoint": false,
+    "whitelistOnly": true,
+    "hmacSha256": true,
+    "timestamp": true,
+    "nonceReplayProtection": true,
+    "riskActionsRequireConfirmation": true,
+    "runtimeSecretsGitignored": true
+  },
   "configurationRequired": [
     "Huawei Developer App ID",
     "Android signing SHA-256 fingerprint",
     "Watch Lite Wearable signing SHA-256 fingerprint",
     "Official Huawei Lite Wearable wearengine.js"
   ],
-  "security": {
-    "realSecretsCommitted": false,
-    "pcAgentArbitraryShellEndpoint": false,
-    "placeholdersOnly": true
-  }
+  "providerExtensionPoints": ["AI Limits", "Smart Room", "Camera Pro", "Asset Radar", "OBS scene control"]
 }

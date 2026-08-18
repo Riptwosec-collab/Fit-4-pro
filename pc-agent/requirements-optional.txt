@@ -1,3 +1,4 @@
-# Optional: enables per-app Audio Mixer sessions on Windows.
+# Optional V6/V6.1 enhancements on Windows.
 pycaw
 comtypes
+qrcode[pil]
