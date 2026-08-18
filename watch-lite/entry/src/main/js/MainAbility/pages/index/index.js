@@ -14,15 +14,30 @@ function nowId(){ return String(Date.now())+'-'+String(Math.floor(Math.random()*
 export default {
   data: {
     view:'home', category:'CONTROL', showControl:false, showApps:false, showSmart:false, showNetwork:false, showSystem:false,
-    connectionState:'OFFLINE', pcState:'UNKNOWN', watchBattery:0,
+    connectionState:'OFFLINE', pcState:'UNKNOWN', watchBattery:0, clockText:'--:--', masterVolume:'--',
     cpu:'--', gpu:'--', ram:'--', ping:'--', activeApp:'-', contextProfile:'GENERIC', audioOutput:'DEFAULT', notificationCount:0, latestNotification:'-',
     selectedId:'', selectedTitle:'', selectedSource:'', selectedDesc:'', featureState:'READY', featureData:'-',
     action1Label:'', action2Label:'', action3Label:'', action4Label:'', action1Command:'', action2Command:'', action3Command:'', action4Command:'',
-    message:'READY', motionArmed:false, motionCalibrating:false, airMouseActive:false, airMouseSensitivity:5, powerProfile:'BALANCED', currentWindowHwnd:0
+    message:'READY', motionArmed:false, motionCalibrating:false, airMouseActive:false, airMouseSensitivity:5, powerProfile:'BALANCED', currentWindowHwnd:0,
+    clockTimer:null
   },
 
-  onInit(){ this.refreshBattery(); this.setupWearEngine(); },
-  onDestroy(){ this.stopMotion(); this.stopAirMouse(); try{p2pClient.unregisterReceiver({onSuccess:function(){},onFailure:function(){}});}catch(e){} },
+  onInit(){
+    this.refreshClock();
+    var self=this;
+    this.clockTimer=setInterval(function(){ self.refreshClock(); },1000);
+    this.refreshBattery();
+    this.setupWearEngine();
+  },
+  onDestroy(){
+    if(this.clockTimer){try{clearInterval(this.clockTimer);}catch(e){} this.clockTimer=null;}
+    this.stopMotion();
+    this.stopAirMouse();
+    try{p2pClient.unregisterReceiver({onSuccess:function(){},onFailure:function(){}});}catch(e){}
+  },
+
+  two(n){ return n<10?'0'+String(n):String(n); },
+  refreshClock(){ var d=new Date(); this.clockText=this.two(d.getHours())+':'+this.two(d.getMinutes()); },
 
   setupWearEngine(){
     var self=this;
@@ -75,7 +90,10 @@ export default {
     if(d.network&&typeof d.network.pingMs==='number')this.ping=d.network.pingMs+'ms';
     this.activeApp=d.activeApp||this.activeApp;
     if(d.context){ this.contextProfile=d.context.profile||this.contextProfile; }
-    if(d.audio){ this.audioOutput=d.audio.output||this.audioOutput; }
+    if(d.audio){
+      this.audioOutput=d.audio.output||this.audioOutput;
+      if(typeof d.audio.master==='number')this.masterVolume=String(Math.round(d.audio.master));
+    }
     this.notificationCount=Number(d.notificationCount||0);
     if(d.latestNotification)this.latestNotification=(d.latestNotification.title||'ALERT')+': '+(d.latestNotification.message||'');
     this.featureData='CPU '+this.cpu+' | GPU '+this.gpu+' | RAM '+this.ram+' | '+this.activeApp;
@@ -83,7 +101,7 @@ export default {
   updateNetwork(d){ this.ping=(typeof d.pingMs==='number')?d.pingMs+'ms':'--'; this.featureData=(d.ip||'NO IP')+' | '+(d.gateway||'NO GW')+' | '+this.ping+' | ↓'+String(d.downloadMbps||0)+' ↑'+String(d.uploadMbps||0)+' Mbps'; },
   updateContext(d){ this.contextProfile=d.profile||'GENERIC'; var a=d.active||{}; this.activeApp=a.process||a.title||this.activeApp; var labels=d.actions||[]; this.featureData=this.contextProfile+' | '+this.activeApp+' | '+labels.join(' / '); },
   updateWindows(d){ var a=d.active||{}; this.currentWindowHwnd=Number(a.hwnd||0); var ws=d.windows||[]; this.featureData=(a.title||a.process||'NO ACTIVE')+' | '+ws.length+' windows'; },
-  updateAudio(d){ this.audioOutput=d.output||'DEFAULT'; var sessions=d.sessions||[]; this.featureData=this.audioOutput+' | '+sessions.length+' sessions | '+(d.provider||'WINDOWS'); },
+  updateAudio(d){ this.audioOutput=d.output||'DEFAULT'; if(typeof d.master==='number')this.masterVolume=String(Math.round(d.master)); var sessions=d.sessions||[]; this.featureData=this.audioOutput+' | '+sessions.length+' sessions | '+(d.provider||'WINDOWS'); },
   updateMacros(d){ var m=d.macros||{}; var names=[]; for(var k in m){if(m.hasOwnProperty(k))names.push(m[k].name||k);} this.featureData=names.slice(0,5).join(' / ')||'NO MACROS'; },
   updateNotifications(d){ var items=d.items||[]; this.notificationCount=Number(d.count||items.length||0); if(items.length)this.latestNotification=(items[0].title||'ALERT')+': '+(items[0].message||''); this.featureData=this.notificationCount+' alerts | '+this.latestNotification; },
   updateApps(d){ var a=d.apps||[]; var names=[]; for(var i=0;i<a.length;i++)names.push(a[i].name||a[i].id); this.featureData=names.slice(0,7).join(' / ')||'NO APPS'; },
