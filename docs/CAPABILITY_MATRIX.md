@@ -1,34 +1,36 @@
-# Capability Matrix — REAL V5
+# Capability Matrix — PC Remote Deck / FIT 4 Pro
 
-| Module / Capability | Source in V5 | Status |
+Field Core capabilities have been removed from this repository.
+
+| Module / Capability | Runtime Source | Status |
 |---|---|---|
 | Watch UI 480×408 | Lite Wearable | SOURCE READY |
-| Haptic | Watch API | IMPLEMENTED |
-| Heart Rate | Watch sensor API | IMPLEMENTED / PERMISSION GATED |
+| Haptic feedback | Watch API | IMPLEMENTED |
+| Battery status | Watch API | IMPLEMENTED |
 | Accelerometer | Watch sensor API | IMPLEMENTED |
 | Gyroscope | Watch sensor API | IMPLEMENTED |
-| Motion gestures | Watch local engine | EXPERIMENTAL / CALIBRATION REQUIRED |
-| Compass | Watch sensor API | IMPLEMENTED |
-| Barometer | Watch sensor API | IMPLEMENTED |
-| Location / anchor | Watch location API when available | IMPLEMENTED / CAPABILITY GATED |
-| Wi‑Fi Recon | Android Phone | IMPLEMENTED |
-| Wi‑Fi Captive Portal / Validation | Android Phone | IMPLEMENTED |
-| Voice recognition | Android Phone | IMPLEMENTED |
-| PC Lock / Media / Windows controls | Windows PC Agent | IMPLEMENTED |
-| PC App Launcher | Windows PC Agent | IMPLEMENTED (whitelist) |
-| Protocols Battle / Focus | Phone → PC | IMPLEMENTED (basic) |
-| Tactical screen light | Watch display | IMPLEMENTED |
-| Depth raw data | Third-party Watch API | UNAVAILABLE / API GATED |
-| Ambient light raw data | Lite Wearable | UNAVAILABLE IN CURRENT IMPLEMENTATION |
-| ECG raw data | Third-party Watch API | NOT ASSUMED AVAILABLE |
-| Temperature raw data | Third-party Watch API | NOT ASSUMED AVAILABLE |
-| Weather / UV / Sky cloud data | Phone/provider | PROVIDER NOT CONFIGURED |
-| Transit geofence | Phone/provider | PROVIDER NOT CONFIGURED |
-| Sleep readiness advanced metrics | Health/provider | PROVIDER NOT CONFIGURED |
-| Running advanced metrics | Health/provider | PROVIDER NOT CONFIGURED |
-| Golf course data | Phone/provider | PROVIDER NOT CONFIGURED |
-| Emergency share acknowledgement | Phone communication provider | PROVIDER NOT CONFIGURED |
+| Motion Command | Watch local engine | IMPLEMENTED / CALIBRATION REQUIRED |
+| Wear Engine P2P | Watch + Android | READY AFTER IDENTITY/SDK CONFIG |
+| PC Lock | Windows PC Agent | IMPLEMENTED |
+| Media Play/Pause/Next/Previous | Windows PC Agent | IMPLEMENTED |
+| Volume / Mute | Windows PC Agent | IMPLEMENTED |
+| Screenshot | Windows PC Agent | IMPLEMENTED |
+| Show Desktop / Alt+Tab | Windows PC Agent | IMPLEMENTED |
+| Ctrl+C / Ctrl+V / D-Pad | Windows PC Agent | IMPLEMENTED |
+| Air Mouse buttons / scroll | Windows PC Agent | IMPLEMENTED |
+| App Launcher | Windows PC Agent | IMPLEMENTED / WHITELIST |
+| Battle Station / Deep Focus | Phone → PC Agent | IMPLEMENTED BASIC |
+| PC Monitor | Windows PC Agent | IMPLEMENTED |
+| Wi-Fi Recon scan | Android Phone | IMPLEMENTED |
+| Captive Portal / Internet Validation | Android Phone | IMPLEMENTED |
+| Wi-Fi ranking / security classification | Android Phone | IMPLEMENTED |
+| Voice Command | Android Phone | IMPLEMENTED / PUSH TO TALK |
+| Stream Hub / OBS | PC bridge | OPTIONAL PROVIDER |
+| Camera Pro | Android Phone | PROVIDER REQUIRED |
+| Smart Room | Android Phone / IoT | PROVIDER REQUIRED |
+| AI Limits | Android Phone | PROVIDER REQUIRED |
+| Asset Radar | Android Phone | PROVIDER REQUIRED |
 
-## Rule
+## Not part of this app
 
-Hardware presence does not automatically mean a third-party Lite Wearable application receives raw sensor access. V5 therefore distinguishes `WATCH`, `PHONE`, `PC`, `CACHED`, `API GATED`, and `UNAVAILABLE` instead of presenting demo values as live measurements.
+Bio, Sleep, Sports, Navigation, Atmospheric, Tactical/Survival and Outdoor Field modules belong to the separate **Field Core** project and are intentionally absent here.
