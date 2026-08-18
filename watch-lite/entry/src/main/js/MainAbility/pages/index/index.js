@@ -1,193 +1,85 @@
 import app from '@system.app';
 import battery from '@system.battery';
 import vibrator from '@system.vibrator';
-import geolocation from '@system.geolocation';
 import sensor from '@system.sensor';
-import storage from '@system.storage';
 import { P2pClient, Message, Builder } from '../../wearengine/wearengine.js';
 import { PHONE_PACKAGE, PHONE_FINGERPRINT } from '../../common/constants.js';
-import { getFeature } from '../../common/featureCatalog.js';
+import { getFeature, getFeaturesByCategory } from '../../common/featureCatalog.js';
 
-var p2pClient = new P2pClient();
-var msg = new Message();
-var builder = new Builder();
-function nowId(){ return String(Date.now())+'-'+String(Math.floor(Math.random()*10000)); }
+var p2pClient=new P2pClient(),msg=new Message(),builder=new Builder();
+function cmdId(){return String(Date.now())+'-'+String(Math.floor(Math.random()*10000));}
 
 export default {
   data:{
-    view:'home', category:'COMMAND',
-    showCommand:false, showBio:false, showSport:false, showField:false, showTactical:false, showSystem:false,
-    connectionState:'OFFLINE', pcState:'UNKNOWN', watchBattery:0, clockText:'--:--', masterVolume:'--',
-    cpu:'--', gpu:'--', ram:'--', ping:'--', activeApp:'-', contextProfile:'GENERIC', audioOutput:'DEFAULT', notificationCount:0, latestNotification:'-',
-    heartRate:'--', hrSubscribed:false, motionArmed:false, motionCalibrating:false, airMouseActive:false, airMouseSensitivity:5,
-    compassActive:false, barometerActive:false, breadcrumbActive:false, breadcrumbPoints:0, powerProfile:'BALANCED', sosConfirmUntil:0, currentWindowHwnd:0,
-    selectedId:'', selectedTitle:'', selectedSource:'', selectedDesc:'', featureState:'READY', featureData:'-',
-    action1Label:'', action2Label:'', action3Label:'', action4Label:'', action1Command:'', action2Command:'', action3Command:'', action4Command:'',
-    visualMain:'READY', visualSub:'MODULE', message:'READY', clockTimer:null
+    view:'home',category:'CONTROL',categoryFeatures:[],connectionState:'OFFLINE',pcState:'UNKNOWN',watchBattery:0,clockText:'--:--',
+    masterVolume:'--',cpu:'--',gpu:'--',ram:'--',ping:'--',quality:'OFFLINE',activeApp:'-',contextProfile:'DESKTOP',contextMode:'AUTO',
+    selectedId:'',selectedTitle:'',selectedSource:'',selectedDesc:'',featureState:'READY',featureData:'-',visualMain:'READY',visualSub:'MODULE',
+    action1Label:'',action2Label:'',action3Label:'',action4Label:'',action1Command:'',action2Command:'',action3Command:'',action4Command:'',
+    message:'READY',commandState:'IDLE',commandId:'',lastAction:'',lastPayload:{},retryAllowed:false,clockTimer:null,
+    dynamic1Label:'MONITOR',dynamic2Label:'MOUSE',dynamic3Label:'WINDOWS',dynamic4Label:'AUDIO',
+    dynamic1Command:'OPEN_FEATURE_1',dynamic2Command:'OPEN_FEATURE_5',dynamic3Command:'OPEN_FEATURE_50',dynamic4Command:'OPEN_FEATURE_49',
+    notificationCount:0,latestNotification:'-',latestNotificationId:'',audioOutput:'DEFAULT',currentWindowHwnd:0,currentMonitorIndex:0,
+    historySummary:'NO HISTORY',topProcess:'NO PROCESS',macroState:'READY',appSummary:'NO APPS',wifiSummary:'NO SCAN',trustSummary:'SECURE',profileName:'WORK',settingsSummary:'DEFAULT',
+    airMouseActive:false,airMousePrecision:false,airMouseDragging:false,airMouseSensitivity:5,airMouseCurve:'SMOOTH',airCalibrating:false,airCalCount:0,airBaseX:0,airBaseY:0,airNoise:0,airLast:0,
+    motionArmed:false,motionTraining:false,motionTestMode:false,motionSensitivity:'NORMAL',motionConfidence:0,motionThreshold:85
   },
-
-  onInit(){
-    this.refreshClock();
-    var self=this;
-    this.clockTimer=setInterval(function(){self.refreshClock();},1000);
-    this.refreshBattery();
-    this.setupWearEngine();
-  },
-
-  onDestroy(){
-    if(this.clockTimer){try{clearInterval(this.clockTimer);}catch(e){} this.clockTimer=null;}
-    this.stopHeartRate();this.stopMotion();this.stopAirMouse();this.stopCompass();this.stopBarometer();this.stopBreadcrumb();this.stopLight();
-    try{p2pClient.unregisterReceiver({onSuccess:function(){},onFailure:function(){}});}catch(e){}
-  },
-
-  two(n){ return n<10?'0'+String(n):String(n); },
-  refreshClock(){ var d=new Date(); this.clockText=this.two(d.getHours())+':'+this.two(d.getMinutes()); },
-
-  setupWearEngine(){
-    var self=this;
-    try{
-      p2pClient.setPeerPkgName(PHONE_PACKAGE);
-      p2pClient.setPeerFingerPrint(PHONE_FINGERPRINT);
-      p2pClient.registerReceiver({
-        onSuccess:function(){self.connectionState='CONNECTED';self.message='PHONE LINK READY';self.sendRemote('GET_DASHBOARD',{});},
-        onFailure:function(){self.connectionState='OFFLINE';self.message='WEAR ENGINE OFFLINE';},
-        onReceiveMessage:function(data){self.onPhoneMessage(data);}
-      });
-    }catch(e){this.connectionState='OFFLINE';this.message='INSTALL OFFICIAL WEAR ENGINE';}
-  },
-
+  onInit(){var s=this;this.refreshClock();this.clockTimer=setInterval(function(){s.refreshClock();},1000);this.refreshBattery();this.categoryFeatures=getFeaturesByCategory('CONTROL');this.setupWearEngine();},
+  onDestroy(){if(this.clockTimer)clearInterval(this.clockTimer);this.stopMotion();this.stopAirMouse();try{p2pClient.unregisterReceiver({onSuccess:function(){},onFailure:function(){}});}catch(e){}},
+  two(n){return n<10?'0'+n:String(n);},refreshClock(){var d=new Date();this.clockText=this.two(d.getHours())+':'+this.two(d.getMinutes());},
+  refreshBattery(){var s=this;try{battery.getStatus({success:function(d){s.watchBattery=Math.round((d.level||0)*100);},fail:function(){}});}catch(e){}},
+  haptic(m){try{vibrator.vibrate({mode:m||'short',success:function(){},fail:function(){}});}catch(e){}},
+  compact(o){try{return (typeof o==='string'?o:JSON.stringify(o)).substring(0,180);}catch(e){return '-';}},
+  setupWearEngine(){var s=this;try{p2pClient.setPeerPkgName(PHONE_PACKAGE);p2pClient.setPeerFingerPrint(PHONE_FINGERPRINT);p2pClient.registerReceiver({onSuccess:function(){s.connectionState='CONNECTED';s.message='PHONE LINK READY';s.sendRemote('GET_CONTROL_HUB',{});},onFailure:function(){s.connectionState='OFFLINE';s.pcState='OFFLINE';s.message='WEAR ENGINE OFFLINE';},onReceiveMessage:function(d){s.onPhoneMessage(d);}});}catch(e){this.message='INSTALL OFFICIAL WEAR ENGINE';}},
   onPhoneMessage(data){
-    if(!data||data.isFileType)return;
-    try{
-      var raw=(typeof data.data!=='undefined')?data.data:data;
-      var obj=JSON.parse(String(raw));
-      if(obj.type==='snapshot'){
-        if(obj.pc)this.updateDashboard(obj.pc);
-        if(obj.wifi)this.updateWifi(obj.wifi);
-        this.connectionState='CONNECTED';this.message='SYNC';return;
-      }
-      if(obj.type==='result'){
-        this.connectionState='CONNECTED';
-        this.message=obj.ok?'OK: '+(obj.message||obj.action||''):'ERROR: '+(obj.message||'FAILED');
-        this.featureState=obj.ok?'READY':'ERROR';
-        var a=obj.action||'',d=obj.data;
-        if(a==='GET_DASHBOARD'||a==='GET_PC_STATUS')this.updateDashboard(d||{});
-        else if(a==='GET_NETWORK'||a==='PHONE_NETWORK_STATUS'||a==='NETWORK_PING')this.updateNetwork(d||{});
-        else if(a==='GET_CONTEXT')this.updateContext(d||{});
-        else if(a==='GET_WINDOWS')this.updateWindows(d||{});
-        else if(a==='GET_AUDIO')this.updateAudio(d||{});
-        else if(a==='GET_MACROS')this.updateMacros(d||{});
-        else if(a==='GET_NOTIFICATIONS')this.updateNotifications(d||{});
-        else if(a==='GET_APPS')this.updateApps(d||{});
-        else if(typeof d!=='undefined'&&d!==null)this.featureData=(typeof d==='object')?this.compact(d):String(d);
-      }
+    if(!data||data.isFileType)return;try{var raw=typeof data.data!=='undefined'?data.data:data,o=JSON.parse(String(raw));
+      if(o.type==='lifecycle'){this.commandId=o.id||this.commandId;this.commandState=o.state||'RUNNING';this.message=(o.action||'COMMAND')+' '+this.commandState;if(this.commandState==='FAILED'||this.commandState==='TIMEOUT')this.haptic('long');return;}
+      if(o.type==='snapshot'){if(o.pc)this.updateDashboard(o.pc);if(o.wifi)this.updateWifi(o.wifi);this.connectionState='CONNECTED';return;}
+      if(o.type!=='result')return;this.commandId=o.id||this.commandId;this.commandState=o.commandState||(o.ok?'DONE':'FAILED');this.message=(o.ok?'DONE: ':'FAILED: ')+(o.message||o.action||'');this.featureState=o.ok?'READY':'ERROR';this.retryAllowed=!this.isRisky(this.lastAction);var a=o.action||'',d=o.data||{};
+      if(a==='GET_DASHBOARD'||a==='GET_DASHBOARD_PRO'||a==='GET_PC_STATUS')this.updateDashboard(d);else if(a==='GET_CONTROL_HUB')this.updateHub(d);else if(a==='GET_TELEMETRY_HISTORY')this.updateHistory(d);else if(a==='GET_TOP_PROCESSES')this.updateProcesses(d);else if(a==='GET_NETWORK'||a==='NETWORK_PING')this.updateNetwork(d);else if(a.indexOf('CONTEXT_')===0||a==='GET_CONTEXT'||a==='GET_CONTEXT_PRO')this.updateContext(d);else if(a==='GET_WINDOWS'||a==='GET_WINDOWS_PRO'||a==='GET_MONITORS')this.updateWindows(d);else if(a==='GET_AUDIO'||a==='GET_AUDIO_PRO'||a.indexOf('AUDIO_')===0)this.updateAudio(d);else if(a==='GET_APPS'||a==='GET_APPS_PRO'||a==='APP_SMART')this.updateApps(d);else if(a==='GET_MACROS'||a==='GET_MACROS_V2'||a.indexOf('MACRO_V2_')===0)this.updateMacros(d,a);else if(a==='GET_NOTIFICATIONS'||a==='GET_NOTIFICATIONS_PRO'||a.indexOf('NOTIFICATION_')===0)this.updateNotifications(d);else if(a==='GET_TRUST_PRO'||a.indexOf('TRUST_')===0)this.updateTrust(d);else if(a==='GET_PRO_SETTINGS')this.updateSettings(d);else if(a==='GET_PROFILES'||a==='PROFILE_SET')this.profileName=d.active||d.profile||this.profileName;else if(typeof o.data!=='undefined')this.featureData=this.compact(o.data);
     }catch(e){this.message='RX DATA';}
   },
+  updateDashboard(d){if(d.state)this.pcState=d.state;if(typeof d.cpuPercent==='number')this.cpu=d.cpuPercent+'%';if(typeof d.gpuPercent==='number')this.gpu=d.gpuPercent+'%';else if(d.hasOwnProperty('gpuPercent'))this.gpu='UNAVAILABLE';if(typeof d.ramPercent==='number')this.ram=d.ramPercent+'%';if(d.network&&typeof d.network.pingMs==='number')this.ping=d.network.pingMs+'ms';if(d.connectionQuality)this.quality=d.connectionQuality;if(d.activeApp)this.activeApp=d.activeApp;if(d.contextPro)this.updateContext(d.contextPro);else if(d.context)this.updateContext(d.context);if(d.audio)this.updateAudio(d.audio);if(d.history)this.updateHistory(d.history);if(typeof d.notificationCountPro==='number')this.notificationCount=d.notificationCountPro;if(d.latestNotificationPro){this.latestNotification=(d.latestNotificationPro.priority||'INFO')+' '+(d.latestNotificationPro.title||'ALERT');this.latestNotificationId=String(d.latestNotificationPro.id||'');}this.connectionState='CONNECTED';},
+  updateHub(d){this.pcState=d.state||this.pcState;if(typeof d.cpu==='number')this.cpu=d.cpu+'%';if(typeof d.ram==='number')this.ram=d.ram+'%';if(typeof d.gpu==='number')this.gpu=d.gpu+'%';if(typeof d.pingMs==='number')this.ping=d.pingMs+'ms';this.quality=d.quality||this.quality;this.contextProfile=d.context||this.contextProfile;this.activeApp=d.activeApp||this.activeApp;this.profileName=d.profile||this.profileName;if(d.quickActions)this.applyDynamic(d.quickActions);this.featureData=this.pcState+' | '+this.cpu+' | '+this.contextProfile+' | '+this.activeApp;},
+  updateHistory(d){var p=d.points||[];this.historySummary=p.length?p.length+' SAMPLES / '+String(d.seconds||300)+' SEC':'NO HISTORY';this.featureData=this.historySummary;},
+  updateProcesses(d){var a=d.items||[];if(!d.available){this.topProcess='UNAVAILABLE';this.featureData=d.reason||'UNAVAILABLE';return;}if(a.length){this.topProcess=(a[0].name||'PROCESS')+' '+(d.metric||'CPU');this.featureData=this.topProcess+' | RAM '+String(a[0].ramMB||0)+' MB';}},
+  updateNetwork(d){if(typeof d.pingMs==='number')this.ping=d.pingMs+'ms';this.featureData=(d.ip||'NO IP')+' | '+this.ping+' | ↓'+String(d.downloadMbps||0)+' ↑'+String(d.uploadMbps||0)+' Mbps';},
+  updateContext(d){this.contextProfile=d.profile||this.contextProfile;this.contextMode=d.mode||this.contextMode;var a=d.active||{};this.activeApp=a.process||a.title||this.activeApp;if(d.actions)this.applyDynamic(d.actions);this.featureData=this.contextProfile+' | '+this.activeApp;},
+  applyDynamic(a){if(!a||!a.length)return;this.dynamic1Label=a[0]||'ACTION 1';this.dynamic2Label=a[1]||'ACTION 2';this.dynamic3Label=a[2]||'ACTION 3';this.dynamic4Label=a[3]||'ACTION 4';this.dynamic1Command='CONTEXT_SLOT_1';this.dynamic2Command='CONTEXT_SLOT_2';this.dynamic3Command='CONTEXT_SLOT_3';this.dynamic4Command='CONTEXT_SLOT_4';},
+  updateWindows(d){var a=d.active||{},w=d.windows||[],m=d.monitors||[];this.currentWindowHwnd=Number(a.hwnd||0);this.featureData=(a.title||a.process||'NO ACTIVE')+' | '+w.length+' WINDOWS | '+m.length+' MONITORS';},
+  updateAudio(d){this.audioOutput=d.output||this.audioOutput;if(typeof d.master==='number')this.masterVolume=String(Math.round(d.master));this.featureData=this.audioOutput+' | '+(d.sessions||[]).length+' SESSIONS'+(d.outputSwitchAvailable===false?' | OUTPUT SWITCH UNAVAILABLE':'');},
+  updateApps(d){var a=d.apps||[],n=[];for(var i=0;i<a.length;i++)n.push((a[i].running?'● ':'○ ')+(a[i].name||a[i].id));this.appSummary=n.slice(0,5).join(' / ')||'NO APPS';this.featureData=this.appSummary;},
+  updateMacros(d,a){if(a&&a.indexOf('RUN')>=0)this.macroState=d.state||'DONE';var m=d.macros||d,n=[];if(m&&typeof m==='object')for(var k in m)if(m.hasOwnProperty(k)&&typeof m[k]==='object')n.push(m[k].name||k);this.featureData=n.slice(0,5).join(' / ')||this.compact(d);},
+  updateNotifications(d){var a=d.items||[];this.notificationCount=Number(d.count||a.length||this.notificationCount||0);if(a.length){this.latestNotification=(a[0].priority||'INFO')+' '+(a[0].title||'ALERT')+': '+(a[0].message||'');this.latestNotificationId=String(a[0].id||'');}this.featureData=this.notificationCount+' ALERTS | '+this.latestNotification;},
+  updateWifi(w){var x='';if(w.best&&w.best.ssid)x=' | BEST '+w.best.ssid+' '+String(w.best.score||0);if(w.channelAnalysis)x+=' | CH '+String(w.channelAnalysis.recommended||'--');this.wifiSummary=(w.summary||'WI-FI SYNC')+x;this.featureData=this.wifiSummary;},
+  updateTrust(d){var t=d.token||{};this.trustSummary=(d.status||'TRUSTED')+' | SESSION '+String(d.sessionAgeSeconds||0)+'s | TOKEN '+(t.status||'UNKNOWN');this.featureData=this.trustSummary;},
+  updateSettings(d){this.profileName=d.profile||this.profileName;this.contextMode=d.context_mode||this.contextMode;this.motionThreshold=Number(d.motion_confidence_threshold||this.motionThreshold);this.settingsSummary='PROFILE '+this.profileName+' | CONTEXT '+this.contextMode+' | '+String(d.telemetry_interval_seconds||'--')+' SEC';this.featureData=this.settingsSummary;},
+  isRisky(a){return a==='SYSTEM_SHUTDOWN'||a==='SYSTEM_RESTART'||a==='SYSTEM_SLEEP'||a==='WINDOW_CLOSE'||a==='TRUST_ROTATE_TOKEN';},
+  requiresPc(a){if(!a||a==='VOICE_PTT'||a==='PAIR_STATUS'||a==='REVOKE_PC_LINK'||a.indexOf('WIFI_')===0||a.indexOf('PHONE_')===0||a.indexOf('IOT_')===0||a.indexOf('OBS_')===0||a.indexOf('OPEN_FEATURE_')===0)return false;return true;},
+  sendCommand(a,p){if(!a)return;if(a.indexOf('OPEN_FEATURE_')===0){this.openFeature(a.replace('OPEN_FEATURE_',''));return;}if(a==='AIR_MOUSE_START'){this.startAirMouse();return;}if(a==='AIR_MOUSE_PRECISION'){this.airMousePrecision=!this.airMousePrecision;this.featureData=this.airMousePrecision?'PRECISION ×0.25':'NORMAL ×1.0';return;}if(a==='AIR_MOUSE_DRAG_TOGGLE'){this.toggleDrag();return;}if(a==='AIR_MOUSE_DOUBLE'){this.sendRemote('MOUSE_DOUBLE',{});return;}if(a==='MOTION_ARM'){this.startMotion();return;}if(a==='MOTION_TRAIN'){this.trainMotion();return;}if(a==='MOTION_SENS_CYCLE'){this.cycleMotionSensitivity();return;}if(a==='MOTION_TEST_TOGGLE'){this.motionTestMode=!this.motionTestMode;this.featureData='TEST '+(this.motionTestMode?'READY':'OFF');return;}if(a==='CONTEXT_MODE_AUTO'){this.sendRemote('CONTEXT_SET_MODE',{mode:'AUTO',locked:false});return;}if(a==='CONTEXT_MODE_MANUAL'){this.sendRemote('CONTEXT_SET_MODE',{mode:'MANUAL',locked:false});return;}if(a==='CONTEXT_LOCK_TOGGLE'){this.sendRemote('CONTEXT_SET_MODE',{mode:this.contextMode,locked:true});return;}if(a==='APP_SMART_CHROME'){this.sendRemote('APP_SMART',{id:'chrome'});return;}if(a==='APP_SMART_VSCODE'){this.sendRemote('APP_SMART',{id:'vscode'});return;}if(a==='APP_SMART_STEAM'){this.sendRemote('APP_SMART',{id:'steam'});return;}if(a==='WINDOW_SNAP_LEFT_ACTIVE'||a==='WINDOW_SNAP_RIGHT_ACTIVE'||a==='WINDOW_MOVE_MONITOR_ACTIVE'){if(!this.currentWindowHwnd){this.message='REFRESH WINDOWS FIRST';return;}if(a==='WINDOW_SNAP_LEFT_ACTIVE')this.sendRemote('WINDOW_SNAP_LEFT',{hwnd:this.currentWindowHwnd});else if(a==='WINDOW_SNAP_RIGHT_ACTIVE')this.sendRemote('WINDOW_SNAP_RIGHT',{hwnd:this.currentWindowHwnd});else this.sendRemote('WINDOW_MOVE_MONITOR',{hwnd:this.currentWindowHwnd,monitor:this.currentMonitorIndex+1});return;}if(a==='MACRO_V2_RUN_WORK'){this.sendRemote('MACRO_V2_RUN',{id:'work'});return;}if(a==='MACRO_V2_RUN_GAME'){this.sendRemote('MACRO_V2_RUN',{id:'game'});return;}if(a==='MACRO_V2_RUN_MEETING'){this.sendRemote('MACRO_V2_RUN',{id:'meeting'});return;}if(a==='NOTIFICATION_ACK_LATEST'){if(this.latestNotificationId)this.sendRemote('NOTIFICATION_ACK',{id:this.latestNotificationId});return;}if(a==='NOTIFICATION_SNOOZE_LATEST'){if(this.latestNotificationId)this.sendRemote('NOTIFICATION_SNOOZE',{id:this.latestNotificationId,minutes:15});return;}if(a==='TRUST_ROTATE_TOKEN_REQUEST'){this.sendRemote('TRUST_ROTATE_TOKEN_REQUEST',{});return;}if(a==='LOG_CLEAR'){this.featureData='-';this.message='WATCH LOG CLEARED';return;}this.sendRemote(a,p||{});},
+  sendRemote(a,p){if(this.requiresPc(a)&&this.pcState==='OFFLINE'){this.commandState='FAILED';this.message='PC OFFLINE';this.retryAllowed=!this.isRisky(a);return;}var s=this,id=cmdId(),body=p||{};this.commandId=id;this.commandState='SENDING';this.lastAction=a;this.lastPayload=body;this.retryAllowed=false;var e={v:2,id:id,ts:Date.now(),type:'command',action:a,source:'FIT4PRO',payload:body};try{builder.setDescription(JSON.stringify(e));msg.builder=builder;p2pClient.send(msg,{onSuccess:function(){s.connectionState='CONNECTED';s.message='SENT '+a;},onFailure:function(){s.connectionState='OFFLINE';s.commandState='FAILED';s.message='PHONE LINK FAILED';s.retryAllowed=!s.isRisky(a);s.haptic('long');},onSendResult:function(r){if(r&&r.code&&r.code!=207)s.message='SEND CODE '+r.code;},onSendProgress:function(){}});}catch(x){this.connectionState='OFFLINE';this.commandState='FAILED';this.message='OFFLINE: '+a;this.retryAllowed=!this.isRisky(a);}},
+  retryLast(){if(!this.retryAllowed||!this.lastAction||this.isRisky(this.lastAction)){this.message='RETRY NOT AVAILABLE';return;}this.sendRemote(this.lastAction,this.lastPayload||{});},
 
-  compact(o){try{return JSON.stringify(o).substring(0,150);}catch(e){return '-';}},
-  updateDashboard(d){
-    this.pcState=d.state||this.pcState;
-    this.cpu=(typeof d.cpuPercent==='number')?d.cpuPercent+'%':'--';
-    this.gpu=(typeof d.gpuPercent==='number')?d.gpuPercent+'%':'--';
-    this.ram=(typeof d.ramPercent==='number')?d.ramPercent+'%':'--';
-    if(d.network&&typeof d.network.pingMs==='number')this.ping=d.network.pingMs+'ms';
-    this.activeApp=d.activeApp||this.activeApp;
-    if(d.context)this.contextProfile=d.context.profile||this.contextProfile;
-    if(d.audio){this.audioOutput=d.audio.output||this.audioOutput;if(typeof d.audio.master==='number')this.masterVolume=String(Math.round(d.audio.master));}
-    this.notificationCount=Number(d.notificationCount||0);
-    if(d.latestNotification)this.latestNotification=(d.latestNotification.title||'ALERT')+': '+(d.latestNotification.message||'');
-    if(this.selectedId==='1')this.featureData='CPU '+this.cpu+' | GPU '+this.gpu+' | RAM '+this.ram+' | '+this.activeApp;
-  },
-  updateNetwork(d){this.ping=(typeof d.pingMs==='number')?d.pingMs+'ms':'--';this.featureData=(d.ip||'NO IP')+' | '+(d.gateway||'NO GW')+' | '+this.ping+' | ↓'+String(d.downloadMbps||0)+' ↑'+String(d.uploadMbps||0)+' Mbps';},
-  updateContext(d){this.contextProfile=d.profile||'GENERIC';var a=d.active||{};this.activeApp=a.process||a.title||this.activeApp;var labels=d.actions||[];this.featureData=this.contextProfile+' | '+this.activeApp+' | '+labels.join(' / ');},
-  updateWindows(d){var a=d.active||{};this.currentWindowHwnd=Number(a.hwnd||0);var ws=d.windows||[];this.featureData=(a.title||a.process||'NO ACTIVE')+' | '+ws.length+' windows';},
-  updateAudio(d){this.audioOutput=d.output||'DEFAULT';if(typeof d.master==='number')this.masterVolume=String(Math.round(d.master));var sessions=d.sessions||[];this.featureData=this.audioOutput+' | '+sessions.length+' sessions | '+(d.provider||'WINDOWS');},
-  updateMacros(d){var m=d.macros||{},names=[];for(var k in m){if(m.hasOwnProperty(k))names.push(m[k].name||k);}this.featureData=names.slice(0,5).join(' / ')||'NO MACROS';},
-  updateNotifications(d){var items=d.items||[];this.notificationCount=Number(d.count||items.length||0);if(items.length)this.latestNotification=(items[0].title||'ALERT')+': '+(items[0].message||'');this.featureData=this.notificationCount+' alerts | '+this.latestNotification;},
-  updateApps(d){var a=d.apps||[],names=[];for(var i=0;i<a.length;i++)names.push(a[i].name||a[i].id);this.featureData=names.slice(0,7).join(' / ')||'NO APPS';},
-  updateWifi(w){var extra='';if(w.best&&w.best.ssid)extra=' | BEST '+w.best.ssid+' '+String(w.best.score||0);this.featureData=(w.summary||'WI-FI SYNC')+extra;},
+  airState:{sumX:0,sumY:0,sumNoise:0,lastX:0,lastY:0},
+  startAirMouse(){var s=this;if(this.airMouseActive)return;this.stopMotion();this.airMouseActive=true;this.airCalibrating=true;this.airCalCount=0;this.airState={sumX:0,sumY:0,sumNoise:0,lastX:0,lastY:0};this.featureState='CALIBRATING';this.featureData='KEEP WRIST STILL';try{sensor.subscribeGyroscope({interval:'ui',success:function(r){s.onAirGyro(r);},fail:function(d,c){s.airMouseActive=false;s.featureState='NO PERMISSION';}});}catch(e){this.featureState='UNAVAILABLE';}},
+  stopAirMouse(){if(!this.airMouseActive)return;if(this.airMouseDragging)this.sendRemote('MOUSE_LEFT_UP',{});try{sensor.unsubscribeGyroscope();}catch(e){}this.airMouseActive=false;this.airMouseDragging=false;this.featureState='READY';},
+  toggleDrag(){if(!this.airMouseActive){this.message='START AIR MOUSE FIRST';return;}this.airMouseDragging=!this.airMouseDragging;this.sendRemote(this.airMouseDragging?'MOUSE_LEFT_DOWN':'MOUSE_LEFT_UP',{});this.featureData=this.airMouseDragging?'DRAGGING':'DRAG OFF';},
+  curve(v){var sign=v<0?-1:1,x=Math.abs(v);if(this.airMouseCurve==='FAST')return sign*x*x*1.25;if(this.airMouseCurve==='LINEAR')return v;if(this.airMouseCurve==='PRECISION')return sign*Math.sqrt(x)*.55;return sign*(x<.8?x*.65:x*x*.85);},
+  onAirGyro(r){var x=Number(r.y||0),y=Number(r.x||0),st=this.airState;if(this.airCalibrating){st.sumX+=x;st.sumY+=y;if(this.airCalCount>0)st.sumNoise+=Math.sqrt((x-st.lastX)*(x-st.lastX)+(y-st.lastY)*(y-st.lastY));st.lastX=x;st.lastY=y;this.airCalCount++;this.featureData='CALIBRATING '+this.airCalCount+'/20';if(this.airCalCount>=20){this.airBaseX=st.sumX/20;this.airBaseY=st.sumY/20;this.airNoise=st.sumNoise/19;this.airCalibrating=false;this.featureState='ACTIVE';this.featureData='READY | NOISE '+this.airNoise.toFixed(2);}return;}var now=Date.now();if(now-this.airLast<100)return;this.airLast=now;x-=this.airBaseX;y-=this.airBaseY;var dead=Math.max(.12,Math.min(.35,.14+this.airNoise*.45));if(Math.abs(x)<dead)x=0;if(Math.abs(y)<dead)y=0;if(!x&&!y)return;x=this.curve(x);y=this.curve(y);var f=this.airMousePrecision?.25:1,s=this.airMouseSensitivity,dx=Math.round(x*s*2.4*f),dy=Math.round(y*s*2.4*f);dx=Math.max(-40,Math.min(40,dx));dy=Math.max(-40,Math.min(40,dy));this.sendRemote('MOUSE_MOVE',{dx:dx,dy:dy,precision:this.airMousePrecision,curve:this.airMouseCurve});},
 
-  sendCommand(action,extra){
-    if(!action)return;
-    if(action==='BIO_START'){this.startHeartRate();return;}if(action==='BIO_STOP'){this.stopHeartRate();return;}
-    if(action==='MOTION_ARM'){this.startMotion();return;}if(action==='MOTION_DISARM'){this.stopMotion();return;}if(action==='MOTION_CALIBRATE'){this.calibrateMotion();return;}
-    if(action==='AIR_MOUSE_START'){this.startAirMouse();return;}if(action==='AIR_MOUSE_STOP'){this.stopAirMouse();return;}
-    if(action==='AIR_MOUSE_CENTER'){this.haptic('short');this.message='AIR MOUSE CENTERED';return;}
-    if(action==='AIR_MOUSE_SENS_UP'){this.airMouseSensitivity++;if(this.airMouseSensitivity>9)this.airMouseSensitivity=3;this.featureData='SENS '+this.airMouseSensitivity;this.message='AIR MOUSE SENS '+this.airMouseSensitivity;return;}
-    if(action==='COMPASS_START'){this.startCompass();return;}if(action==='COMPASS_STOP'){this.stopCompass();return;}
-    if(action==='BAROMETER_START'){this.startBarometer();return;}if(action==='BAROMETER_STOP'){this.stopBarometer();return;}
-    if(action==='TACTICAL_LIGHT_RED'){this.startLight('red');return;}if(action==='TACTICAL_LIGHT_WHITE'){this.startLight('white');return;}if(action==='TACTICAL_LIGHT_SOS'){this.confirmSosLight();return;}
-    if(action==='FIELD_LOCATION'||action==='GEO_SAVE_TEMP'||action==='BREADCRUMB_MARK'){this.captureLocation(action);return;}
-    if(action==='BREADCRUMB_START'){this.startBreadcrumb();return;}if(action==='BREADCRUMB_STOP'){this.stopBreadcrumb();return;}if(action==='BREADCRUMB_RETURN'){this.returnBreadcrumb();return;}
-    if(action==='GEO_LAST'||action==='GEO_RETURN'){this.showLastAnchor(action==='GEO_RETURN');return;}
-    if(action==='POWER_PERFORMANCE'||action==='POWER_BALANCED'||action==='POWER_ENDURANCE'||action==='POWER_GRID'){this.applyPowerProfile(action);return;}
-    if(action==='WINDOW_FOCUS_ACTIVE'||action==='WINDOW_MIN_ACTIVE'||action==='WINDOW_CLOSE_ACTIVE'){
-      if(!this.currentWindowHwnd){this.message='REFRESH WINDOWS FIRST';this.featureState='NO WINDOW';return;}
-      var mapped=action==='WINDOW_FOCUS_ACTIVE'?'WINDOW_FOCUS':action==='WINDOW_MIN_ACTIVE'?'WINDOW_MIN':'WINDOW_CLOSE';this.sendRemote(mapped,{hwnd:this.currentWindowHwnd});return;
-    }
-    if(action==='MACRO_RUN_WORK'){this.sendRemote('MACRO_RUN',{id:'work'});return;}if(action==='MACRO_RUN_GAME'){this.sendRemote('MACRO_RUN',{id:'game'});return;}if(action==='MACRO_RUN_MEETING'){this.sendRemote('MACRO_RUN',{id:'meeting'});return;}
-    if(action==='HAPTIC_TEST'||action==='COGNITIVE_RESET'){this.haptic('short');this.message=action;return;}
-    if(action==='LOG_CLEAR'){this.message='LOG CLEARED';this.featureData='-';return;}
-    this.sendRemote(action,extra||{});
-  },
+  motionState:{baseX:0,baseY:0,baseZ:0,count:0,sumX:0,sumY:0,sumZ:0,lastGesture:0,lastTwist:0,twists:0,shakes:0,shakeWindow:0},
+  startMotion(){var s=this;if(this.motionArmed)return;this.stopAirMouse();this.motionArmed=true;try{sensor.subscribeAccelerometer({interval:'ui',success:function(r){s.onAccel(r);},fail:function(){s.motionArmed=false;s.featureState='NO PERMISSION';}});sensor.subscribeGyroscope({interval:'ui',success:function(r){s.onMotionGyro(r);},fail:function(){}});}catch(e){this.motionArmed=false;this.featureState='UNAVAILABLE';}},
+  stopMotion(){try{sensor.unsubscribeAccelerometer();}catch(e){}try{if(!this.airMouseActive)sensor.unsubscribeGyroscope();}catch(e){}this.motionArmed=false;this.motionTraining=false;},
+  trainMotion(){var st=this.motionState;st.count=0;st.sumX=0;st.sumY=0;st.sumZ=0;this.motionTraining=true;this.featureData='TRAIN 0/30';if(!this.motionArmed)this.startMotion();},
+  cycleMotionSensitivity(){var a=['LOW','NORMAL','HIGH','CUSTOM'],i=(a.indexOf(this.motionSensitivity)+1)%a.length;this.motionSensitivity=a[i];this.featureData='SENS '+this.motionSensitivity+' | '+this.motionThreshold+'%';},
+  motionTh(){return this.motionSensitivity==='LOW'?14:this.motionSensitivity==='HIGH'?9:11;},
+  onAccel(r){var st=this.motionState,x=Number(r.x||0),y=Number(r.y||0),z=Number(r.z||0);if(this.motionTraining){st.sumX+=x;st.sumY+=y;st.sumZ+=z;st.count++;this.featureData='TRAIN '+st.count+'/30';if(st.count>=30){st.baseX=st.sumX/30;st.baseY=st.sumY/30;st.baseZ=st.sumZ/30;this.motionTraining=false;this.featureData='BASELINE SAVED';}return;}var now=Date.now();if(now-st.lastGesture<800)return;var dx=x-st.baseX,dy=y-st.baseY,dz=z-st.baseZ,mag=Math.sqrt(dx*dx+dy*dy+dz*dz),th=this.motionTh();if(dx>th&&Math.abs(dy)<th){this.motionGesture('RIGHT FLICK','CONTEXT_SLOT_2',Math.min(99,Math.round(68+dx*2.2)));return;}if(dx<-th&&Math.abs(dy)<th){this.motionGesture('LEFT FLICK','CONTEXT_SLOT_1',Math.min(99,Math.round(68+Math.abs(dx)*2.2)));return;}if(mag>th+7){if(now-st.shakeWindow>700){st.shakeWindow=now;st.shakes=0;}st.shakes++;if(st.shakes>=3){st.shakes=0;this.motionGesture('SHAKE','MEDIA_MUTE',92);}}},
+  onMotionGyro(r){var st=this.motionState,now=Date.now(),z=Math.abs(Number(r.z||0));if(z>3){st.twists=now-st.lastTwist<700?st.twists+1:1;st.lastTwist=now;if(st.twists>=2&&now-st.lastGesture>800){st.twists=0;this.motionGesture('DOUBLE TWIST','MEDIA_PLAY_PAUSE',90);}}},
+  motionGesture(n,c,conf){this.motionConfidence=conf;this.featureData=n+' | CONFIDENCE '+conf+'%';if(conf<this.motionThreshold){this.message='GESTURE IGNORED';return;}this.motionState.lastGesture=Date.now();this.haptic('short');if(this.motionTestMode){this.message='TEST DETECTED '+n;return;}this.sendRemote(c,{gesture:n,confidence:conf,context:this.contextProfile});},
 
-  sendRemote(action,payload){
-    var self=this;var envelope={v:1,id:nowId(),ts:Date.now(),type:'command',action:action,source:'FIT4PRO',payload:payload||{}};
-    try{builder.setDescription(JSON.stringify(envelope));msg.builder=builder;p2pClient.send(msg,{onSuccess:function(){self.connectionState='CONNECTED';self.message='SENT '+action;},onFailure:function(){self.connectionState='OFFLINE';self.message='PHONE LINK FAILED';self.haptic('long');},onSendResult:function(resultCode){if(resultCode&&resultCode.code&&resultCode.code!=207)self.message='SEND CODE '+resultCode.code;},onSendProgress:function(){}});}catch(e){this.connectionState='OFFLINE';this.message='OFFLINE: '+action;}
-  },
-
-  refreshBattery(){var self=this;try{battery.getStatus({success:function(d){self.watchBattery=Math.round((d.level||0)*100);},fail:function(){}});}catch(e){}},
-  haptic(mode){try{vibrator.vibrate({mode:mode||'short',success:function(){},fail:function(){}});}catch(e){}},
-
-  startHeartRate(){var self=this;if(this.hrSubscribed)return;try{sensor.subscribeHeartRate({success:function(ret){self.heartRate=ret.heartRate||ret.rate||ret.value||'--';self.featureData=self.heartRate+' BPM';},fail:function(){self.featureState='NO PERMISSION';}});this.hrSubscribed=true;this.featureState='ACTIVE';this.message='HEART RATE ACTIVE';}catch(e){this.featureState='UNAVAILABLE';this.message='HEART RATE API UNAVAILABLE';}},
-  stopHeartRate(){if(!this.hrSubscribed)return;try{sensor.unsubscribeHeartRate();}catch(e){}this.hrSubscribed=false;if(this.selectedId==='22')this.featureState='READY';},
-
-  captureLocation(reason){var self=this;this.featureState='INITIALIZING';try{geolocation.getLocation({success:function(d){var display=String(d.latitude).substring(0,9)+', '+String(d.longitude).substring(0,9);self.featureData=display;self.featureState='READY';self.haptic('short');if(reason==='GEO_SAVE_TEMP'||reason==='BREADCRUMB_MARK'){var anchorObj={lat:Number(d.latitude),lon:Number(d.longitude),accuracy:d.accuracy||null,ts:Date.now()};storage.set({key:'last_anchor',value:JSON.stringify(anchorObj),success:function(){},fail:function(){}});}self.sendRemote('WATCH_LOCATION_RESULT',{reason:reason,latitude:d.latitude,longitude:d.longitude,accuracy:d.accuracy||null});},fail:function(data,code){self.featureState='NO LOCATION';self.message='LOCATION ERROR '+code;self.haptic('long');}});}catch(e){this.featureState='UNAVAILABLE';this.message='LOCATION API UNAVAILABLE';}},
-
-  breadcrumbTimer:null,breadcrumbRoute:[],
-  getLocationOnce(cb){try{geolocation.getLocation({success:function(d){cb(null,{lat:Number(d.latitude),lon:Number(d.longitude),accuracy:d.accuracy||null,ts:Date.now()});},fail:function(data,code){cb('LOCATION '+code,null);}});}catch(e){cb('LOCATION API',null);}},
-  distanceM(a,b){var R=6371000,p1=a.lat*Math.PI/180,p2=b.lat*Math.PI/180,dp=(b.lat-a.lat)*Math.PI/180,dl=(b.lon-a.lon)*Math.PI/180;var x=Math.sin(dp/2)*Math.sin(dp/2)+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)*Math.sin(dl/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));},
-  bearingDeg(a,b){var p1=a.lat*Math.PI/180,p2=b.lat*Math.PI/180,dl=(b.lon-a.lon)*Math.PI/180,y=Math.sin(dl)*Math.cos(p2),x=Math.cos(p1)*Math.sin(p2)-Math.sin(p1)*Math.cos(p2)*Math.cos(dl);return (Math.atan2(y,x)*180/Math.PI+360)%360;},
-  headingName(d){var a=['N','NE','E','SE','S','SW','W','NW'];return a[Math.round(((d%360)+360)%360/45)%8];},
-  startBreadcrumb(){var self=this;if(this.breadcrumbActive)return;this.breadcrumbActive=true;this.breadcrumbRoute=[];this.breadcrumbPoints=0;this.featureState='ACTIVE';this.message='BREADCRUMB START';var sample=function(){self.getLocationOnce(function(err,p){if(err||!p){self.message='BREADCRUMB NO GPS';return;}var route=self.breadcrumbRoute,last=route.length?route[route.length-1]:null;if(!last||self.distanceM(last,p)>=50){route.push(p);if(route.length>100)route.shift();self.breadcrumbPoints=route.length;self.featureData=route.length+' POINTS';storage.set({key:'breadcrumb_route',value:JSON.stringify(route),success:function(){},fail:function(){}});}});};sample();this.breadcrumbTimer=setInterval(sample,this.powerProfile==='ENDURANCE'||this.powerProfile==='GRID'?60000:30000);this.haptic('short');},
-  stopBreadcrumb(){if(this.breadcrumbTimer){clearInterval(this.breadcrumbTimer);this.breadcrumbTimer=null;}if(!this.breadcrumbActive)return;this.breadcrumbActive=false;this.featureState='READY';this.message='BREADCRUMB SAVED '+this.breadcrumbPoints;this.haptic('short');},
-  returnBreadcrumb(){var self=this;storage.get({key:'breadcrumb_route',success:function(v){try{var route=JSON.parse(v||'[]');if(!route.length){self.featureState='NO DATA';self.message='NO BREADCRUMB';return;}var base=route[0];self.getLocationOnce(function(err,cur){if(err||!cur){self.featureState='NO LOCATION';self.message='RETURN NEEDS GPS';return;}var dist=Math.round(self.distanceM(cur,base)),bearing=Math.round(self.bearingDeg(cur,base));self.featureData=dist+' M | '+bearing+'° '+self.headingName(bearing);self.featureState='RETURN';self.message='RETURN TO BASE';self.haptic('long');});}catch(e){self.featureState='ERROR';self.message='ROUTE DATA ERROR';}},fail:function(){self.featureState='NO DATA';self.message='NO BREADCRUMB';}});},
-  showLastAnchor(returnMode){var self=this;storage.get({key:'last_anchor',success:function(v){try{var a=JSON.parse(v||'{}');if(typeof a.lat==='undefined'){self.featureState='NO DATA';self.message='NO ANCHOR';return;}if(!returnMode){self.featureData=String(a.lat).substring(0,9)+', '+String(a.lon).substring(0,9);self.message='LAST ANCHOR';return;}self.getLocationOnce(function(err,cur){if(err||!cur){self.featureState='NO LOCATION';self.message='ANCHOR RETURN NEEDS GPS';return;}var dist=Math.round(self.distanceM(cur,a)),b=Math.round(self.bearingDeg(cur,a));self.featureData=dist+' M | '+b+'° '+self.headingName(b);self.featureState='RETURN';self.message='RETURN TO ANCHOR';});}catch(e){self.featureState='ERROR';self.message='ANCHOR DATA ERROR';}},fail:function(){self.featureState='NO DATA';self.message='NO ANCHOR';}});},
-
-  applyPowerProfile(action){var p=action.replace('POWER_','');this.powerProfile=p;this.featureData=p;this.message='POWER '+p;if(p==='ENDURANCE'||p==='GRID'){this.stopMotion();this.stopAirMouse();this.stopBarometer();if(p==='GRID')this.stopCompass();}this.haptic('short');},
-
-  motionState:{baseX:0,baseY:0,baseZ:0,calCount:0,sumX:0,sumY:0,sumZ:0,lastGesture:0,lastTwist:0,twistCount:0,shakeCount:0,shakeWindow:0},
-  startMotion(){var self=this;if(this.motionArmed)return;this.stopAirMouse();this.motionArmed=true;this.featureState='ACTIVE';this.message='MOTION ARMED';try{sensor.subscribeAccelerometer({interval:'ui',success:function(r){self.onAccel(r);},fail:function(d,c){self.motionArmed=false;self.featureState='NO PERMISSION';self.message='ACCEL ERROR '+c;}});sensor.subscribeGyroscope({interval:'ui',success:function(r){self.onGyro(r);},fail:function(d,c){self.message='GYRO LIMITED '+c;}});}catch(e){this.motionArmed=false;this.featureState='UNAVAILABLE';this.message='MOTION API UNAVAILABLE';}},
-  stopMotion(){try{sensor.unsubscribeAccelerometer();}catch(e){}try{if(!this.airMouseActive)sensor.unsubscribeGyroscope();}catch(e){}this.motionArmed=false;this.motionCalibrating=false;if(this.selectedId==='26')this.featureState='READY';},
-  calibrateMotion(){var st=this.motionState;st.calCount=0;st.sumX=0;st.sumY=0;st.sumZ=0;this.motionCalibrating=true;this.message='CALIBRATE 0/20';if(!this.motionArmed)this.startMotion();},
-  onAccel(r){var st=this.motionState,x=Number(r.x||0),y=Number(r.y||0),z=Number(r.z||0);if(this.motionCalibrating){st.sumX+=x;st.sumY+=y;st.sumZ+=z;st.calCount++;this.message='CALIBRATE '+st.calCount+'/20';if(st.calCount>=20){st.baseX=st.sumX/20;st.baseY=st.sumY/20;st.baseZ=st.sumZ/20;this.motionCalibrating=false;this.message='CALIBRATION GOOD';this.haptic('short');}return;}var now=Date.now();if(now-st.lastGesture<800)return;var dx=x-st.baseX,dy=y-st.baseY,dz=z-st.baseZ,mag=Math.sqrt(dx*dx+dy*dy+dz*dz);if(dx>11&&Math.abs(dy)<10){this.motionGesture('FLICK RIGHT','MEDIA_NEXT',Math.min(99,Math.round(70+dx*2)));return;}if(dx<-11&&Math.abs(dy)<10){this.motionGesture('FLICK LEFT','MEDIA_PREV',Math.min(99,Math.round(70+Math.abs(dx)*2)));return;}if(mag>18){if(now-st.shakeWindow>700){st.shakeWindow=now;st.shakeCount=0;}st.shakeCount++;if(st.shakeCount>=3){st.shakeCount=0;this.motionGesture('SHAKE','MEDIA_MUTE',92);}}},
-  onGyro(r){if(this.airMouseActive){this.onAirMouseGyro(r);return;}var st=this.motionState,now=Date.now(),z=Math.abs(Number(r.z||0));if(z>3.0){if(now-st.lastTwist<700)st.twistCount++;else st.twistCount=1;st.lastTwist=now;if(st.twistCount>=2&&now-st.lastGesture>800){st.twistCount=0;this.motionGesture('DOUBLE TWIST','MEDIA_PLAY_PAUSE',90);}}},
-  motionGesture(name,cmd,confidence){if(confidence<85)return;this.motionState.lastGesture=Date.now();this.featureData=name+' '+confidence+'%';this.message='GESTURE '+name;this.haptic('short');this.sendRemote(cmd,{gesture:name,confidence:confidence});},
-
-  airMouseLast:0,
-  startAirMouse(){var self=this;if(this.airMouseActive)return;this.stopMotion();this.airMouseActive=true;this.featureState='ACTIVE';this.featureData='SENS '+this.airMouseSensitivity;this.message='AIR MOUSE ACTIVE';try{sensor.subscribeGyroscope({interval:'ui',success:function(r){self.onAirMouseGyro(r);},fail:function(d,c){self.airMouseActive=false;self.featureState='NO PERMISSION';self.message='GYRO ERROR '+c;}});this.haptic('short');}catch(e){this.airMouseActive=false;this.featureState='UNAVAILABLE';this.message='GYRO API UNAVAILABLE';}},
-  stopAirMouse(){if(!this.airMouseActive)return;try{sensor.unsubscribeGyroscope();}catch(e){}this.airMouseActive=false;if(this.selectedId==='5')this.featureState='READY';this.message='AIR MOUSE STOPPED';},
-  onAirMouseGyro(r){var now=Date.now();if(now-this.airMouseLast<120)return;this.airMouseLast=now;var x=Number(r.y||0),y=Number(r.x||0),dead=0.18;if(Math.abs(x)<dead)x=0;if(Math.abs(y)<dead)y=0;if(x===0&&y===0)return;var s=this.airMouseSensitivity,dx=Math.round(x*s*2.2),dy=Math.round(y*s*2.2);if(dx>35)dx=35;if(dx<-35)dx=-35;if(dy>35)dy=35;if(dy<-35)dy=-35;this.sendRemote('MOUSE_MOVE',{dx:dx,dy:dy});},
-
-  startCompass(){var self=this;if(this.compassActive)return;try{sensor.subscribeCompass({success:function(r){var d=Math.round(Number(r.direction||0));self.featureData=d+' deg '+self.headingName(d);self.featureState='ACTIVE';},fail:function(d,c){self.featureState='UNAVAILABLE';self.message='COMPASS ERROR '+c;}});this.compassActive=true;this.message='COMPASS ACTIVE';}catch(e){this.featureState='UNAVAILABLE';this.message='COMPASS API UNAVAILABLE';}},
-  stopCompass(){try{sensor.unsubscribeCompass();}catch(e){}this.compassActive=false;if(this.selectedId==='27')this.featureState='READY';this.message='COMPASS STOPPED';},
-  startBarometer(){var self=this;if(this.barometerActive)return;try{sensor.subscribeBarometer({success:function(r){var pa=Number(r.pressure||0);self.featureData=(pa/100).toFixed(1)+' hPa';self.featureState='ACTIVE';},fail:function(d,c){self.featureState='UNAVAILABLE';self.message='BAROMETER ERROR '+c;}});this.barometerActive=true;this.message='PRESSURE ACTIVE';}catch(e){this.featureState='UNAVAILABLE';this.message='BAROMETER API UNAVAILABLE';}},
-  stopBarometer(){try{sensor.unsubscribeBarometer();}catch(e){}this.barometerActive=false;if(this.selectedId==='19')this.featureState='READY';this.message='PRESSURE STOPPED';},
-
-  lightTimer:null,
-  startLight(mode){this.sosConfirmUntil=0;if(this.lightTimer){clearInterval(this.lightTimer);this.lightTimer=null;}this.view=mode==='white'?'lightWhite':'lightRed';this.message='TACTICAL LIGHT '+mode.toUpperCase();},
-  confirmSosLight(){var now=Date.now();if(now>this.sosConfirmUntil){this.sosConfirmUntil=now+5000;this.message='SOS SAFETY: TAP SOS AGAIN';this.haptic('long');return;}this.sosConfirmUntil=0;this.startSosLight();},
-  startSosLight(){var self=this,on=true;this.view='lightRed';this.message='SOS FLASH ACTIVE';this.haptic('long');this.lightTimer=setInterval(function(){on=!on;self.view=on?'lightRed':'lightBlack';},450);},
-  stopLight(){if(this.lightTimer){clearInterval(this.lightTimer);this.lightTimer=null;}if(this.view==='lightRed'||this.view==='lightWhite'||this.view==='lightBlack')this.view='detail';this.sosConfirmUntil=0;},
-
-  visualFor(id){var n=String(id);if(n==='1')return ['CPU '+this.cpu,'PC MONITOR'];if(n==='5')return ['GYRO','AIR MOUSE'];if(n==='12')return [this.ping,'NETWORK'];if(n==='22')return [this.heartRate+'','BPM'];if(n==='27')return ['NAV','COMPASS'];if(n==='30')return ['LIGHT','TACTICAL'];if(n==='37')return [this.powerProfile,'POWER'];if(n==='39')return ['WI-FI','RECON'];if(n==='41')return [String(this.breadcrumbPoints),'POINTS'];if(n==='42')return ['ANCHOR','LOCAL'];if(n==='43')return ['UV','PROVIDER'];if(n==='44')return ['HEAT','ESTIMATE'];if(n==='45')return ['ALT','WELLNESS'];if(n==='46')return ['TRANSIT','GEOFENCE'];if(n==='47')return ['SKY','WINDOW'];if(n==='48')return ['SOS','LOCAL CORE'];if(n==='49')return [this.masterVolume+'%','AUDIO'];if(n==='50')return ['WINDOW','CONTROL'];if(n==='51')return ['MACRO','SAFE'];if(n==='52')return [String(this.notificationCount),'ALERTS'];if(n==='53')return ['TRUST','SECURE'];return ['READY','MODULE'];},
-
-  openFeature(id){var f=getFeature(id);if(!f)return;this.selectedId=String(id);this.selectedTitle=f.title;this.selectedSource=f.source;this.selectedDesc=f.desc;this.action1Label=f.actions[0]?f.actions[0].label:'';this.action1Command=f.actions[0]?f.actions[0].command:'';this.action2Label=f.actions[1]?f.actions[1].label:'';this.action2Command=f.actions[1]?f.actions[1].command:'';this.action3Label=f.actions[2]?f.actions[2].label:'';this.action3Command=f.actions[2]?f.actions[2].command:'';this.action4Label=f.actions[3]?f.actions[3].label:'';this.action4Command=f.actions[3]?f.actions[3].command:'';this.featureState=f.source==='UNAVAILABLE'?'API GATED':'READY';this.featureData='-';this.message='MODULE READY';var v=this.visualFor(id);this.visualMain=v[0];this.visualSub=v[1];this.view='detail';this.haptic('short');if(String(id)==='1')this.sendRemote('GET_DASHBOARD',{});else if(String(id)==='4')this.sendRemote('GET_CONTEXT',{});else if(String(id)==='6')this.sendRemote('GET_APPS',{});else if(String(id)==='12')this.sendRemote('GET_NETWORK',{});else if(String(id)==='49')this.sendRemote('GET_AUDIO',{});else if(String(id)==='50')this.sendRemote('GET_WINDOWS',{});else if(String(id)==='51')this.sendRemote('GET_MACROS',{});else if(String(id)==='52')this.sendRemote('GET_NOTIFICATIONS',{});},
-  setCategory(c){this.category=c;this.view='list';this.showCommand=c==='COMMAND';this.showBio=c==='BIO';this.showSport=c==='SPORT';this.showField=c==='FIELD';this.showTactical=c==='TACTICAL';this.showSystem=c==='SYSTEM';},
-  goHome(){this.view='home';this.showCommand=false;this.showBio=false;this.showSport=false;this.showField=false;this.showTactical=false;this.showSystem=false;this.refreshBattery();this.sendRemote('GET_DASHBOARD',{});},
-  goList(){this.setCategory(this.category);},catCommand(){this.setCategory('COMMAND');},catBio(){this.setCategory('BIO');},catSport(){this.setCategory('SPORT');},catField(){this.setCategory('FIELD');},catTactical(){this.setCategory('TACTICAL');},catSystem(){this.setCategory('SYSTEM');},
-  quickLock(){this.sendCommand('PC_LOCK');},quickMute(){this.sendCommand('MEDIA_MUTE');},quickPlay(){this.sendCommand('MEDIA_PLAY_PAUSE');},quickShot(){this.sendCommand('SCREENSHOT');},detailAction1(){this.sendCommand(this.action1Command);},detailAction2(){this.sendCommand(this.action2Command);},detailAction3(){this.sendCommand(this.action3Command);},detailAction4(){this.sendCommand(this.action4Command);},
-  swipeEvent(e){if(e.direction=='right'){if(this.view==='lightRed'||this.view==='lightWhite'||this.view==='lightBlack'){this.stopLight();return;}if(this.view==='home')app.terminate();else if(this.view==='detail')this.goList();else this.goHome();}},
-
-  f0(){this.openFeature('0');},f1(){this.openFeature('1');},f2(){this.openFeature('2');},f3(){this.openFeature('3');},f4(){this.openFeature('4');},f5(){this.openFeature('5');},f6(){this.openFeature('6');},f7(){this.openFeature('7');},f8(){this.openFeature('8');},f9(){this.openFeature('9');},f10(){this.openFeature('10');},f11(){this.openFeature('11');},f12(){this.openFeature('12');},f13(){this.openFeature('13');},f14(){this.openFeature('14');},f15(){this.openFeature('15');},f16(){this.openFeature('16');},f17(){this.openFeature('17');},f18(){this.openFeature('18');},f19(){this.openFeature('19');},f20(){this.openFeature('20');},f21(){this.openFeature('21');},f22(){this.openFeature('22');},f23(){this.openFeature('23');},f24(){this.openFeature('24');},f25(){this.openFeature('25');},f26(){this.openFeature('26');},f27(){this.openFeature('27');},f28(){this.openFeature('28');},f29(){this.openFeature('29');},f30(){this.openFeature('30');},f31(){this.openFeature('31');},f32(){this.openFeature('32');},f33(){this.openFeature('33');},f34(){this.openFeature('34');},f35(){this.openFeature('35');},f36(){this.openFeature('36');},f37(){this.openFeature('37');},f38(){this.openFeature('38');},f39(){this.openFeature('39');},f40(){this.openFeature('40');},f41(){this.openFeature('41');},f42(){this.openFeature('42');},f43(){this.openFeature('43');},f44(){this.openFeature('44');},f45(){this.openFeature('45');},f46(){this.openFeature('46');},f47(){this.openFeature('47');},f48(){this.openFeature('48');},f49(){this.openFeature('49');},f50(){this.openFeature('50');},f51(){this.openFeature('51');},f52(){this.openFeature('52');},f53(){this.openFeature('53');}
+  visualFor(id){var n=String(id);if(n==='1')return[this.cpu,'PC MONITOR'];if(n==='4')return[this.contextProfile,'CONTEXT'];if(n==='5')return[this.airMousePrecision?'PREC':'GYRO','AIR MOUSE'];if(n==='6')return['APPS','SMART LAUNCH'];if(n==='12')return[this.ping,'NETWORK'];if(n==='21'||n==='54')return[this.pcState,'CONTROL HUB'];if(n==='26')return[String(this.motionConfidence)+'%','MOTION'];if(n==='39')return['WI-FI','RECON 2.0'];if(n==='49')return[this.masterVolume+'%','AUDIO'];if(n==='50')return['WINDOW','CENTER'];if(n==='51')return[this.macroState,'MACRO'];if(n==='52')return[String(this.notificationCount),'ALERTS'];if(n==='53')return['TRUST','SECURITY'];if(n==='55')return[this.profileName,'SETTINGS'];return['READY','MODULE'];},
+  openFeature(id){var f=getFeature(id);if(!f)return;this.selectedId=String(id);this.selectedTitle=f.title;this.selectedSource=f.source;this.selectedDesc=f.desc;for(var i=0;i<4;i++){var a=f.actions[i]||{label:'',command:''};this['action'+(i+1)+'Label']=a.label;this['action'+(i+1)+'Command']=a.command;}var v=this.visualFor(id);this.visualMain=v[0];this.visualSub=v[1];this.featureState='READY';this.featureData='-';this.view='detail';var n=String(id),q=n==='1'?'GET_DASHBOARD_PRO':n==='4'?'GET_CONTEXT_PRO':n==='6'?'GET_APPS_PRO':n==='12'?'GET_NETWORK':n==='21'||n==='54'?'GET_CONTROL_HUB':n==='39'?'WIFI_SCAN':n==='49'?'GET_AUDIO_PRO':n==='50'?'GET_WINDOWS_PRO':n==='51'?'GET_MACROS_V2':n==='52'?'GET_NOTIFICATIONS_PRO':n==='53'?'GET_TRUST_PRO':n==='55'?'GET_PRO_SETTINGS':'';if(q)this.sendRemote(q,{});},
+  setCategory(c){this.category=c;this.categoryFeatures=getFeaturesByCategory(c);this.view='list';},goHome(){this.view='home';this.sendRemote('GET_CONTROL_HUB',{});},goList(){this.setCategory(this.category);},catControl(){this.setCategory('CONTROL');},catApps(){this.setCategory('APPS');},catSmart(){this.setCategory('SMART');},catNetwork(){this.setCategory('NETWORK');},catSystem(){this.setCategory('SYSTEM');},
+  featureTap(e){var id='';try{id=String(e.target.attr.dataId||e.target.dataId||'');}catch(x){}if(!id&&e&&e.detail&&typeof e.detail.id!=='undefined')id=String(e.detail.id);if(id)this.openFeature(id);},
+  quickPlay(){this.sendCommand('MEDIA_PLAY_PAUSE');},quickMute(){this.sendCommand('MEDIA_MUTE');},quickLock(){this.sendCommand('PC_LOCK');},quickShot(){this.sendCommand('SCREENSHOT');},dynamic1(){this.sendCommand(this.dynamic1Command);},dynamic2(){this.sendCommand(this.dynamic2Command);},dynamic3(){this.sendCommand(this.dynamic3Command);},dynamic4(){this.sendCommand(this.dynamic4Command);},detailAction1(){this.sendCommand(this.action1Command);},detailAction2(){this.sendCommand(this.action2Command);},detailAction3(){this.sendCommand(this.action3Command);},detailAction4(){this.sendCommand(this.action4Command);},
+  swipeEvent(e){if(e.direction==='right'){if(this.view==='home')app.terminate();else if(this.view==='detail')this.goList();else this.goHome();}}
 };
