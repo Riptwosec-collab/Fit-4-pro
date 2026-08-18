@@ -1,10 +1,44 @@
-# PC Remote Deck V6.1 — HUAWEI WATCH FIT 4 Pro
+# PC Remote Deck V6.2 — HUAWEI WATCH FIT 4 Pro
 
 PC Remote Deck เป็น **PC-control-only** app สำหรับ FIT 4 Pro: Watch สั่งงาน → Android Companion bridge → Windows PC Agent.
 
-## V6/V6.1 Highlights
+## V6.2 — Masterpiece Animated HUD Upgrade
 
-- Watch Home V2: CPU / GPU / RAM / Ping / Active App / Context / Alerts
+รอบ V6.2 โฟกัสที่ **ทำทุกหน้าให้เต็ม ใช้พื้นที่ 480×408 คุ้มขึ้น และเพิ่ม animation แบบ lightweight สำหรับ Lite Wearable** โดยไม่ลบฟังก์ชันเดิมและไม่เปลี่ยน security model
+
+- Global scan beam animation
+- Status-dot pulse / secure glow
+- Animated segmented-style dial + sweep
+- EQ bars animation
+- Pulse buttons / active dock animation
+- Data-flow / packet animation
+- Radar sweep สำหรับ Network / Wi-Fi
+- Air Mouse gyro reticle animation
+- Voice pulse rings
+- Notification pulse ring
+- Trust / Security shield pulse
+- Protocol flow animation
+- Motion orbit animation
+- System core / battery HUD
+- Category pages ที่เคยโล่งถูกเติมด้วยข้อมูลหรือ visual ที่สัมพันธ์กับหน้าตัวเอง
+- Detail pages มี visual เฉพาะโมดูล ไม่ใช้ generic empty card แบบเดิม
+
+### หน้า Category ที่เติมใหม่
+
+- **CONTROL** — CPU / Audio / Active App summary
+- **APPS** — Active App orbit + Launcher / Stream / Camera shortcuts
+- **SMART** — Context / Motion / Power summary
+- **NETWORK** — latency radar + PC/Phone link quality
+- **SYSTEM** — Watch battery core + Phone / PC / Power / Alerts + latest event
+
+### Detail UI เฉพาะโมดูล
+
+V6.2 เพิ่ม layout/visual เฉพาะสำหรับ Favorites, PC Monitor, Now Playing, AI Limits, Context Engine, Air Mouse, App Launcher, D-Pad, Smart Room, Pro Tools, System, Stream Hub, Network, Terminal Macros, Camera Pro, Asset Radar, Command Center, Protocol Engine, System Log, Motion Command, Voice Command, Wi-Fi Recon, Audio Mixer, Window Center, Macro Deck, Notification Bridge และ Trust Center
+
+> ฟังก์ชันที่ยังไม่มี provider จริงจะยังแสดง `--` / provider state แทนการสร้างข้อมูลปลอม
+
+## V6/V6.1 Functional Highlights
+
 - PC Monitor Pro: CPU, GPU best-effort, RAM, Disk, Network, Top Processes, temperature when Windows exposes it
 - Audio Mixer Pro: master controls + optional per-app sessions via `pycaw`
 - Window Center: active/window list + focus/minimize/maximize/close
