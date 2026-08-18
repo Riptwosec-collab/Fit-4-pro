@@ -13,6 +13,7 @@ public final class CommandRouter {
         void requestVoice();
         void revokePcLink();
     }
+
     private final PcBridgeClient pc;
     private final Listener listener;
     private final Set<String> pcWhitelist = new HashSet<>(Arrays.asList(
@@ -25,23 +26,74 @@ public final class CommandRouter {
         "GET_MACROS","MACRO_SAVE","MACRO_RUN","MACRO_DELETE","GET_NOTIFICATIONS","NOTIFICATIONS_CLEAR",
         "SYSTEM_SLEEP","SYSTEM_RESTART","SYSTEM_SHUTDOWN"
     ));
-    public CommandRouter(PcBridgeClient pc, Listener listener){this.pc=pc;this.listener=listener;}
+
+    public CommandRouter(PcBridgeClient pc, Listener listener){
+        this.pc=pc;
+        this.listener=listener;
+    }
 
     public void route(JSONObject envelope){
-        final String id=envelope.optString("id","");final String action=envelope.optString("action","");JSONObject payload=envelope.optJSONObject("payload");if(payload==null)payload=new JSONObject();
+        final String id=envelope.optString("id","");
+        final String action=envelope.optString("action","");
+        JSONObject payload=envelope.optJSONObject("payload");
+        if(payload==null)payload=new JSONObject();
+
         if(action.length()==0){result(id,action,false,"MISSING ACTION",null);return;}
-        if("WIFI_SCAN".equals(action)||"WIFI_BEST".equals(action)||"WIFI_FREE".equals(action)||"WIFI_STATUS".equals(action)){listener.requestWifiScan();return;}
-        if("VOICE_PTT".equals(action)){listener.requestVoice();return;}
-        if("PAIR_STATUS".equals(action)){try{JSONObject d=new JSONObject();d.put("phone","READY");d.put("pc",pc.isConfigured()?"CONFIGURED":"NOT CONFIGURED");result(id,action,true,"TRUST STATUS",d);}catch(Exception ignored){}return;}
-        if("REVOKE_PC_LINK".equals(action)){listener.revokePcLink();result(id,action,true,"PC LINK REVOKED",null);return;}
+
+        if("WIFI_SCAN".equals(action)||"WIFI_BEST".equals(action)||"WIFI_FREE".equals(action)||"WIFI_STATUS".equals(action)){
+            listener.requestWifiScan();
+            return;
+        }
+        if("VOICE_PTT".equals(action)){
+            listener.requestVoice();
+            return;
+        }
+        if("WATCH_LOCATION_RESULT".equals(action)){
+            result(id,action,true,"PHONE RECEIVED WATCH LOCATION",payload);
+            return;
+        }
+        if("PAIR_STATUS".equals(action)){
+            try{
+                JSONObject d=new JSONObject();
+                d.put("phone","READY");
+                d.put("pc",pc.isConfigured()?"CONFIGURED":"NOT CONFIGURED");
+                result(id,action,true,"TRUST STATUS",d);
+            }catch(Exception ignored){}
+            return;
+        }
+        if("REVOKE_PC_LINK".equals(action)){
+            listener.revokePcLink();
+            result(id,action,true,"PC LINK REVOKED",null);
+            return;
+        }
+
         if(pcWhitelist.contains(action)){
             final JSONObject fp=payload;
-            pc.command(action,fp,new PcBridgeClient.Callback(){@Override public void onResult(boolean ok,String msg,JSONObject body){JSONObject data=body.optJSONObject("data");result(id,action,ok,msg,data!=null?data:body.optJSONObject("payload"));}});return;
+            pc.command(action,fp,new PcBridgeClient.Callback(){
+                @Override public void onResult(boolean ok,String msg,JSONObject body){
+                    JSONObject data=body.optJSONObject("data");
+                    result(id,action,ok,msg,data!=null?data:body.optJSONObject("payload"));
+                }
+            });
+            return;
         }
+
+        // Restored Bio/Sport/Field/Tactical provider commands remain explicit.
+        // If a provider has not been connected yet, never fabricate live data.
         result(id,action,false,"PROVIDER NOT CONFIGURED ON PHONE",null);
     }
 
     private void result(String id,String action,boolean ok,String message,JSONObject data){
-        try{JSONObject r=new JSONObject();r.put("v",1);r.put("type","result");r.put("id",id);r.put("action",action);r.put("ok",ok);r.put("message",message);if(data!=null)r.put("data",data);listener.sendToWatch(r);}catch(Exception ignored){}
+        try{
+            JSONObject r=new JSONObject();
+            r.put("v",1);
+            r.put("type","result");
+            r.put("id",id);
+            r.put("action",action);
+            r.put("ok",ok);
+            r.put("message",message);
+            if(data!=null)r.put("data",data);
+            listener.sendToWatch(r);
+        }catch(Exception ignored){}
     }
 }
