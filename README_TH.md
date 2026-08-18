@@ -1,88 +1,176 @@
-# PC Remote Deck — HUAWEI WATCH FIT 4 Pro REAL V5
+# PC Remote Deck — HUAWEI WATCH FIT 4 Pro
 
-เวอร์ชันนี้แปลงจาก V4 HTML prototype ให้เป็นโครงสร้างสำหรับใช้งานกับ HUAWEI WATCH FIT 4 Pro แบบจริง โดยแยกงานตามอุปกรณ์:
+Repository นี้เหลือเฉพาะ **PC Remote Deck** สำหรับ HUAWEI WATCH FIT 4 Pro แล้ว
 
-- `watch-lite/` — Lite Wearable app สำหรับ Watch (480×408)
-- `android-companion/` — Android Phone Companion + Huawei Wear Engine + Wi‑Fi Recon + Voice handoff
-- `pc-agent/` — Windows Agent สำหรับคำสั่ง PC แบบ whitelist + authentication
-- `legacy/pc_remote_deck_os_masterpiece_field_wifi_v4.html.gz` — V4 HTML เดิมแบบ gzip เก็บไว้เป็น baseline เพื่อ Zero Regression
+Field Core / Bio / Sport / Outdoor / Tactical Navigation ถูกแยกออกไปเป็นอีกโปรเจกต์และไม่อยู่ในแอปนี้
 
-> เป้าหมายคือ **PHONE SCANS / WATCH COMMANDS / PC EXECUTES** และไม่แสดงข้อมูล Sensor/API ที่เข้าถึงไม่ได้เป็นค่าจริง
+## Architecture
 
-## ฟังก์ชันหลักที่ต่อกับ FIT 4 Pro แล้วใน source
+```text
+HUAWEI WATCH FIT 4 PRO
+        │
+        │ Huawei Wear Engine
+        ▼
+ANDROID PHONE COMPANION
+        │
+        │ Authenticated LAN channel
+        ▼
+WINDOWS PC AGENT
+```
 
-### Watch-native / local-first
-- UI เป้าหมาย 480×408
+เป้าหมายหลัก:
+
+**WATCH COMMANDS → PHONE BRIDGE → PC EXECUTES**
+
+## Watch App — 22 Modules
+
+### CONTROL
+- Favorites
+- PC Monitor
+- Now Playing
+- Air Mouse
+- D-Pad
+- Pro Tools
+- Terminal
+- Command System
+
+### APPS
+- App Launcher
+- Stream Hub
+- Camera Pro
+
+### SMART
+- AI Limits
+- Context Aware
+- Smart Room
+- Asset Radar
+- Protocols
+- Motion Command
+- Voice Command
+
+### NETWORK
+- Network Status
+- Wi-Fi Recon
+
+### SYSTEM
+- System
+- System Log
+
+## Removed from this app
+
+สิ่งต่อไปนี้ไม่อยู่ใน PC Remote Deck แล้ว:
+
+- Bio Telemetry / Daily Hub / Sleep
+- Sports HUD / Running / Aqua / Golf
+- Navigation / Silent Nav / Tactical Nav
+- Atmospheric / Acoustic
+- Depth HUD / Tactical Light / Grid-Down
+- Field Systems
+- Breadcrumb / Geo Anchor
+- Solar / Thermal / Altitude / Transit / Sky
+- Emergency Core
+- Light Guardian
+
+ระบบเหล่านี้เป็นหน้าที่ของโปรเจกต์ **Field Core** แยกต่างหาก
+
+## Watch-native
+
+- UI 480×408
 - Haptic feedback
-- Heart-rate subscription เมื่อ API/permission พร้อม
+- Battery status
 - Accelerometer + Gyroscope สำหรับ Motion Command
-- Compass / heading
-- Barometer / pressure
-- Location capture / Geo Anchor เมื่อ runtime เปิด API/permission
-- Tactical red/white screen light และ SOS flash safety flow
-- 49 Module catalog เดิมจาก V4 ยังคงอยู่ครบ
+- Motion calibration / confidence / cooldown
+- Local power profile สำหรับ PC Remote Deck
+- Local System Log state
 
-### Phone-assisted
+Motion mapping:
+
+```text
+FLICK RIGHT  → NEXT TRACK
+FLICK LEFT   → PREVIOUS TRACK
+DOUBLE TWIST → PLAY / PAUSE
+SHAKE        → MUTE
+```
+
+## Phone-assisted
+
 - Huawei Wear Engine P2P bridge
-- Wi‑Fi Recon จาก Android Wi‑Fi APIs
-- OPEN / SECURED / LOGIN REQUIRED / FREE VERIFIED / NO INTERNET classification
-- Android network validation + captive portal state
-- Android speech recognition สำหรับ Voice Command แบบ whitelist
-- Provider bridge สำหรับ Weather / UV / Transit / Internet data ในอนาคต
+- Wi-Fi Recon ผ่าน Android Wi-Fi APIs
+- Network validation / captive portal classification
+- Android Speech Recognition สำหรับ Voice Command
+- Phone providers สำหรับ AI Limits / Asset Radar / Camera / Smart Room ตามการเชื่อมต่อที่ตั้งค่า
 
-### PC-assisted
+Wi-Fi Recon ยึดหลัก:
+
+**OPEN ≠ FREE**
+
+และไม่รวมเครื่องมือโจมตีเครือข่าย
+
+## PC-assisted
+
 - Lock PC
 - Play/Pause / Next / Previous / Mute / Volume
-- Show Desktop / Alt+Tab / Ctrl+C / Ctrl+V
+- Show Desktop / Alt+Tab
+- Ctrl+C / Ctrl+V
+- Arrow/D-Pad
 - Mouse click / scroll
 - Screenshot
-- App Launcher บางรายการ
-- Battle Station / Deep Focus protocol
-- Signed command request ด้วย token + HMAC + timestamp + nonce
+- Whitelisted App Launcher
+- Battle Station
+- Deep Focus
+- PC status
 
-## สิ่งที่ยังต้องใส่ก่อน Build ลงเครื่องจริง
+PC Agent ใช้ token + HMAC + timestamp + nonce และไม่มี arbitrary shell endpoint
+
+## Project Structure
+
+```text
+Fit-4-pro/
+├── watch-lite/
+├── android-companion/
+├── pc-agent/
+├── docs/
+├── tools/
+├── REAL_DEVICE_INSTALL.ps1
+└── README_TH.md
+```
+
+## ก่อน Build ลงเครื่องจริง
+
+ต้องมี:
 
 1. Huawei Developer App ID
-2. SHA-256 fingerprint ของ Android Companion
-3. SHA-256 fingerprint ของ Watch/Lite Wearable signing certificate
-4. Official Huawei Wear Engine Lite Wearable `wearengine.js`
-5. DevEco Studio + signing profile สำหรับ Lite Wearable
-6. Android Studio/Android SDK สำหรับ build APK
+2. Android signing SHA-256 fingerprint
+3. Lite Wearable signing SHA-256 fingerprint
+4. Official Huawei Wear Engine `wearengine.js`
+5. DevEco Studio
+6. Android Studio / Android SDK
 
-ใช้ script:
+ตั้ง identity:
 
-```bash
-python tools/configure_identity.py \
-  --huawei-app-id YOUR_APP_ID \
-  --android-fingerprint YOUR_ANDROID_SHA256 \
+```powershell
+python tools/configure_identity.py `
+  --huawei-app-id YOUR_APP_ID `
+  --android-fingerprint YOUR_ANDROID_SHA256 `
   --watch-fingerprint YOUR_WATCH_SHA256
 ```
 
-จากนั้นติดตั้ง Wear Engine SDK ฝั่ง Watch:
+ติดตั้ง Wear Engine SDK ฝั่ง Watch:
 
-```bash
-python tools/install_wearengine_sdk.py /path/to/official/wearengine.js
+```powershell
+python tools/install_wearengine_sdk.py C:\path\to\wearengine.js
 ```
 
-ตรวจ preflight:
+ตรวจ source:
 
-```bash
+```powershell
 python tools/preflight.py
 ```
 
-ดูขั้นตอนเต็มที่ `docs/BUILD_AND_INSTALL_TH.md`
+หรือใช้:
 
-## สำคัญ
-
-โปรเจกต์นี้ไม่ได้สร้าง `.hap` หรือ `.apk` ที่ signed สำเร็จใน environment ปัจจุบัน เพราะไม่มี DevEco Studio, Android SDK และ signing identity ของบัญชี Huawei ของผู้ใช้ จึงส่งเป็น **source-ready project** ที่พร้อมนำไปเปิดใน IDE และใส่ identity จริงแทนการสร้าง binary ปลอม
-
-
-## Legacy baseline ใน GitHub
-
-เพื่อให้ repo เบา ไฟล์ V4 HTML baseline ถูกเก็บแบบ gzip:
-
-```bash
-gzip -dk legacy/pc_remote_deck_os_masterpiece_field_wifi_v4.html.gz
+```powershell
+.\REAL_DEVICE_INSTALL.ps1
 ```
 
-หลังแตกไฟล์จะได้ `legacy/pc_remote_deck_os_masterpiece_field_wifi_v4.html` ต้นฉบับ
+ดูขั้นตอนเต็มใน `docs/BUILD_AND_INSTALL_TH.md` และ `docs/REAL_DEVICE_INSTALL_TH.md`
