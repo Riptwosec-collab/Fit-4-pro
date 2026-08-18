@@ -4,7 +4,7 @@
   "pcRemoteOnly": false,
   "unifiedApp": true,
   "watchVersion": "7.0.0",
-  "androidVersion": "6.1-fit4pro",
+  "androidVersion": "7.0-fit4pro",
   "sourceReady": true,
   "signedBinariesIncluded": false,
   "modules": 54,
