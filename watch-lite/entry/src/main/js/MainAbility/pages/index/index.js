@@ -1,106 +1,299 @@
 import app from '@system.app';
 import battery from '@system.battery';
 import vibrator from '@system.vibrator';
-import geolocation from '@system.geolocation';
 import sensor from '@system.sensor';
-import storage from '@system.storage';
 import { P2pClient, Message, Builder } from '../../wearengine/wearengine.js';
 import { PHONE_PACKAGE, PHONE_FINGERPRINT } from '../../common/constants.js';
 import { getFeature } from '../../common/featureCatalog.js';
+
 var p2pClient = new P2pClient();
 var msg = new Message();
 var builder = new Builder();
-function nowId() { return String(Date.now()) + '-' + String(Math.floor(Math.random() * 10000)); }
+
+function nowId() {
+  return String(Date.now()) + '-' + String(Math.floor(Math.random() * 10000));
+}
+
 export default {
- data: { view:'home', category:'COMMAND', showCommand:false, showBio:false, showSport:false, showField:false, showTactical:false, showSystem:false, motionArmed:false, motionCalibrating:false, compassActive:false, barometerActive:false, breadcrumbActive:false, breadcrumbPoints:0, powerProfile:'BALANCED', sosConfirmUntil:0, connectionState:'OFFLINE', pcState:'UNKNOWN', watchBattery:0, heartRate:'--', selectedId:'', selectedTitle:'', selectedSource:'', selectedDesc:'', featureState:'READY', featureData:'-', action1Label:'', action2Label:'', action3Label:'', action4Label:'', action1Command:'', action2Command:'', action3Command:'', action4Command:'', message:'READY', hrSubscribed:false },
- onInit(){ this.refreshBattery(); this.setupWearEngine(); },
- onDestroy(){ this.stopHeartRate(); this.stopMotion(); this.stopCompass(); this.stopBarometer(); this.stopBreadcrumb(); this.stopLight(); try{ p2pClient.unregisterReceiver({onSuccess:function(){},onFailure:function(){}}); }catch(e){} },
- setupWearEngine(){ var self=this; try{ p2pClient.setPeerPkgName(PHONE_PACKAGE); p2pClient.setPeerFingerPrint(PHONE_FINGERPRINT); p2pClient.registerReceiver({ onSuccess:function(){self.connectionState='CONNECTED';self.message='PHONE LINK READY';}, onFailure:function(){self.connectionState='OFFLINE';self.message='WEAR ENGINE OFFLINE';}, onReceiveMessage:function(data){self.onPhoneMessage(data);} }); }catch(e){ this.connectionState='OFFLINE'; this.message='INSTALL OFFICIAL WEAR ENGINE'; } },
- onPhoneMessage(data){ if(!data||data.isFileType)return; try{ var raw=(typeof data.data!=='undefined')?data.data:data; var obj=JSON.parse(String(raw)); if(obj.type==='snapshot'){ if(obj.pc&&obj.pc.state)this.pcState=obj.pc.state; if(obj.wifi){ var w=obj.wifi; var extra=''; if(w.best&&w.best.ssid)extra=' | BEST '+w.best.ssid+' '+String(w.best.score||0); this.featureData=(w.summary||'WI-FI SYNC')+extra; } this.connectionState='CONNECTED'; this.message='SYNC'; } else if(obj.type==='result'){ this.message=obj.ok?'OK: '+(obj.message||obj.action||''):'ERROR: '+(obj.message||'FAILED'); this.featureState=obj.ok?'READY':'ERROR'; if(typeof obj.data!=='undefined')this.featureData=(typeof obj.data==='object')?JSON.stringify(obj.data):String(obj.data); } }catch(e){ this.message='RX DATA'; } },
- sendCommand(action,extra){ var self=this; if(!action)return; if(action==='BIO_START'){this.startHeartRate();return;} if(action==='BIO_STOP'){this.stopHeartRate();return;} if(action==='MOTION_ARM'){this.startMotion();return;} if(action==='MOTION_DISARM'){this.stopMotion();return;} if(action==='MOTION_CALIBRATE'){this.calibrateMotion();return;} if(action==='COMPASS_START'){this.startCompass();return;} if(action==='COMPASS_STOP'){this.stopCompass();return;} if(action==='BAROMETER_START'){this.startBarometer();return;} if(action==='BAROMETER_STOP'){this.stopBarometer();return;} if(action==='TACTICAL_LIGHT_RED'){this.startLight('red');return;} if(action==='TACTICAL_LIGHT_WHITE'){this.startLight('white');return;} if(action==='TACTICAL_LIGHT_SOS'){this.confirmSosLight();return;} if(action==='FIELD_LOCATION'||action==='GEO_SAVE_TEMP'||action==='BREADCRUMB_MARK'){this.captureLocation(action);return;} if(action==='BREADCRUMB_START'){this.startBreadcrumb();return;} if(action==='BREADCRUMB_STOP'){this.stopBreadcrumb();return;} if(action==='BREADCRUMB_RETURN'){this.returnBreadcrumb();return;} if(action==='GEO_LAST'||action==='GEO_RETURN'){this.showLastAnchor(action==='GEO_RETURN');return;} if(action==='POWER_PERFORMANCE'||action==='POWER_BALANCED'||action==='POWER_ENDURANCE'||action==='POWER_GRID'){this.applyPowerProfile(action);return;} if(action==='HAPTIC_TEST'||action==='COGNITIVE_RESET'){this.haptic('short');this.message=action;return;} var envelope={v:1,id:nowId(),ts:Date.now(),type:'command',action:action,source:'FIT4PRO',payload:extra||{}}; try{ builder.setDescription(JSON.stringify(envelope)); msg.builder=builder; p2pClient.send(msg,{onSuccess:function(){self.connectionState='CONNECTED';self.message='SENT '+action;},onFailure:function(){self.connectionState='OFFLINE';self.message='PHONE LINK FAILED';self.haptic('long');},onSendResult:function(resultCode){if(resultCode&&resultCode.code&&resultCode.code!=207)self.message='SEND CODE '+resultCode.code;},onSendProgress:function(){}}); }catch(e){this.connectionState='OFFLINE';this.message='OFFLINE: '+action;} },
- refreshBattery(){ var self=this; try{battery.getStatus({success:function(d){self.watchBattery=Math.round((d.level||0)*100);},fail:function(){}});}catch(e){} },
- haptic(mode){try{vibrator.vibrate({mode:mode||'short',success:function(){},fail:function(){}});}catch(e){}},
- startHeartRate(){var self=this;if(this.hrSubscribed)return;try{sensor.subscribeHeartRate({success:function(ret){self.heartRate=ret.heartRate||ret.rate||ret.value||'--';self.featureData=self.heartRate+' BPM';},fail:function(){self.featureState='NO PERMISSION';}});this.hrSubscribed=true;this.featureState='ACTIVE';this.message='HEART RATE ACTIVE';}catch(e){this.featureState='UNAVAILABLE';this.message='HEART RATE API UNAVAILABLE';}},
- stopHeartRate(){if(!this.hrSubscribed)return;try{sensor.unsubscribeHeartRate();}catch(e){}this.hrSubscribed=false;if(this.selectedId==='22')this.featureState='READY';},
- captureLocation(reason){var self=this;this.featureState='INITIALIZING';try{geolocation.getLocation({success:function(d){var a=String(d.latitude).substring(0,9)+', '+String(d.longitude).substring(0,9);self.featureData=a;self.featureState='READY';self.haptic('short');if(reason==='GEO_SAVE_TEMP'||reason==='BREADCRUMB_MARK'){var anchorObj={lat:Number(d.latitude),lon:Number(d.longitude),accuracy:d.accuracy||null,ts:Date.now()};storage.set({key:'last_anchor',value:JSON.stringify(anchorObj),success:function(){},fail:function(){}});}self.sendCommand('WATCH_LOCATION_RESULT',{reason:reason,latitude:d.latitude,longitude:d.longitude,accuracy:d.accuracy||null});},fail:function(data,code){self.featureState='NO LOCATION';self.message='LOCATION ERROR '+code;self.haptic('long');}});}catch(e){this.featureState='UNAVAILABLE';this.message='LOCATION API UNAVAILABLE';}},
- breadcrumbTimer:null,
- breadcrumbRoute:[],
- getLocationOnce(cb){var self=this;try{geolocation.getLocation({success:function(d){cb(null,{lat:Number(d.latitude),lon:Number(d.longitude),accuracy:d.accuracy||null,ts:Date.now()});},fail:function(data,code){cb('LOCATION '+code,null);}});}catch(e){cb('LOCATION API',null);}},
- distanceM(a,b){var R=6371000;var p1=a.lat*Math.PI/180,p2=b.lat*Math.PI/180;var dp=(b.lat-a.lat)*Math.PI/180,dl=(b.lon-a.lon)*Math.PI/180;var x=Math.sin(dp/2)*Math.sin(dp/2)+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)*Math.sin(dl/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));},
- bearingDeg(a,b){var p1=a.lat*Math.PI/180,p2=b.lat*Math.PI/180,dl=(b.lon-a.lon)*Math.PI/180;var y=Math.sin(dl)*Math.cos(p2);var x=Math.cos(p1)*Math.sin(p2)-Math.sin(p1)*Math.cos(p2)*Math.cos(dl);return (Math.atan2(y,x)*180/Math.PI+360)%360;},
- startBreadcrumb(){var self=this;if(this.breadcrumbActive)return;this.breadcrumbActive=true;this.breadcrumbRoute=[];this.breadcrumbPoints=0;this.featureState='ACTIVE';this.message='BREADCRUMB START';var sample=function(){self.getLocationOnce(function(err,p){if(err||!p){self.message='BREADCRUMB NO GPS';return;}var route=self.breadcrumbRoute;var last=route.length?route[route.length-1]:null;var save=!last||self.distanceM(last,p)>=50;if(save){route.push(p);if(route.length>100)route.shift();self.breadcrumbPoints=route.length;self.featureData=route.length+' POINTS';storage.set({key:'breadcrumb_route',value:JSON.stringify(route),success:function(){},fail:function(){}});}});};sample();this.breadcrumbTimer=setInterval(sample,this.powerProfile==='ENDURANCE'||this.powerProfile==='GRID'?60000:30000);this.haptic('short');},
- stopBreadcrumb(){if(this.breadcrumbTimer){clearInterval(this.breadcrumbTimer);this.breadcrumbTimer=null;}if(!this.breadcrumbActive)return;this.breadcrumbActive=false;this.featureState='READY';this.message='BREADCRUMB SAVED '+this.breadcrumbPoints;this.haptic('short');},
- returnBreadcrumb(){var self=this;storage.get({key:'breadcrumb_route',success:function(v){try{var route=JSON.parse(v||'[]');if(!route.length){self.featureState='NO DATA';self.message='NO BREADCRUMB';return;}var base=route[0];self.getLocationOnce(function(err,cur){if(err||!cur){self.featureState='NO LOCATION';self.message='RETURN NEEDS GPS';return;}var dist=Math.round(self.distanceM(cur,base));var bearing=Math.round(self.bearingDeg(cur,base));self.featureData=dist+' M | '+bearing+'° '+self.headingName(bearing);self.featureState='RETURN';self.message='RETURN TO BASE';self.haptic('long');});}catch(e){self.featureState='ERROR';self.message='ROUTE DATA ERROR';}},fail:function(){self.featureState='NO DATA';self.message='NO BREADCRUMB';}});},
- showLastAnchor(returnMode){var self=this;storage.get({key:'last_anchor',success:function(v){try{var a=JSON.parse(v||'{}');if(typeof a.lat==='undefined'){self.featureState='NO DATA';self.message='NO ANCHOR';return;}if(!returnMode){self.featureData=String(a.lat).substring(0,9)+', '+String(a.lon).substring(0,9);self.message='LAST ANCHOR';return;}self.getLocationOnce(function(err,cur){if(err||!cur){self.featureState='NO LOCATION';self.message='ANCHOR RETURN NEEDS GPS';return;}var dist=Math.round(self.distanceM(cur,a));var b=Math.round(self.bearingDeg(cur,a));self.featureData=dist+' M | '+b+'° '+self.headingName(b);self.featureState='RETURN';self.message='RETURN TO ANCHOR';});}catch(e){self.featureState='ERROR';self.message='ANCHOR DATA ERROR';}},fail:function(){self.featureState='NO DATA';self.message='NO ANCHOR';}});},
- applyPowerProfile(action){var p=action.replace('POWER_','');this.powerProfile=p;this.featureData=p;this.message='POWER '+p;if(p==='ENDURANCE'||p==='GRID'){this.stopMotion();this.stopBarometer();if(p==='GRID')this.stopCompass();}this.haptic('short');},
- motionState:{baseX:0,baseY:0,baseZ:0,calCount:0,sumX:0,sumY:0,sumZ:0,lastGesture:0,lastTwist:0,twistCount:0,shakeCount:0,shakeWindow:0},
- startMotion(){var self=this;if(this.motionArmed)return;this.motionArmed=true;this.featureState='ACTIVE';this.message='MOTION ARMED';try{sensor.subscribeAccelerometer({interval:'ui',success:function(r){self.onAccel(r);},fail:function(d,c){self.motionArmed=false;self.featureState='NO PERMISSION';self.message='ACCEL ERROR '+c;}});sensor.subscribeGyroscope({interval:'ui',success:function(r){self.onGyro(r);},fail:function(d,c){self.message='GYRO LIMITED '+c;}});}catch(e){this.motionArmed=false;this.featureState='UNAVAILABLE';this.message='MOTION API UNAVAILABLE';}},
- stopMotion(){try{sensor.unsubscribeAccelerometer();}catch(e){}try{sensor.unsubscribeGyroscope();}catch(e){}this.motionArmed=false;this.motionCalibrating=false;if(this.selectedId==='26')this.featureState='READY';this.message='MOTION DISARMED';},
- calibrateMotion(){var st=this.motionState;st.calCount=0;st.sumX=0;st.sumY=0;st.sumZ=0;this.motionCalibrating=true;this.message='CALIBRATE 0/20';if(!this.motionArmed)this.startMotion();},
- onAccel(r){var st=this.motionState;var x=Number(r.x||0),y=Number(r.y||0),z=Number(r.z||0);if(this.motionCalibrating){st.sumX+=x;st.sumY+=y;st.sumZ+=z;st.calCount++;this.message='CALIBRATE '+st.calCount+'/20';if(st.calCount>=20){st.baseX=st.sumX/20;st.baseY=st.sumY/20;st.baseZ=st.sumZ/20;this.motionCalibrating=false;this.message='CALIBRATION GOOD';this.haptic('short');}return;}var now=Date.now();if(now-st.lastGesture<800)return;var dx=x-st.baseX,dy=y-st.baseY,dz=z-st.baseZ;var mag=Math.sqrt(dx*dx+dy*dy+dz*dz);if(dx>11&&Math.abs(dy)<10){this.motionGesture('FLICK RIGHT','MEDIA_NEXT',Math.min(99,Math.round(70+dx*2)));return;}if(dx<-11&&Math.abs(dy)<10){this.motionGesture('FLICK LEFT','MEDIA_PREV',Math.min(99,Math.round(70+Math.abs(dx)*2)));return;}if(mag>18){if(now-st.shakeWindow>700){st.shakeWindow=now;st.shakeCount=0;}st.shakeCount++;if(st.shakeCount>=3){st.shakeCount=0;this.motionGesture('SHAKE','MEDIA_MUTE',92);}}},
- onGyro(r){var st=this.motionState;var now=Date.now();var z=Math.abs(Number(r.z||0));if(z>3.0){if(now-st.lastTwist<700)st.twistCount++;else st.twistCount=1;st.lastTwist=now;if(st.twistCount>=2&&now-st.lastGesture>800){st.twistCount=0;this.motionGesture('DOUBLE TWIST','MEDIA_PLAY_PAUSE',90);}}},
- motionGesture(name,cmd,confidence){if(confidence<85)return;this.motionState.lastGesture=Date.now();this.featureData=name+' '+confidence+'%';this.message='GESTURE '+name;this.haptic('short');this.sendCommand(cmd,{gesture:name,confidence:confidence});},
- startCompass(){var self=this;if(this.compassActive)return;try{sensor.subscribeCompass({success:function(r){var d=Math.round(Number(r.direction||0));self.featureData=d+' deg '+self.headingName(d);self.featureState='ACTIVE';},fail:function(d,c){self.featureState='UNAVAILABLE';self.message='COMPASS ERROR '+c;}});this.compassActive=true;this.message='COMPASS ACTIVE';}catch(e){this.featureState='UNAVAILABLE';this.message='COMPASS API UNAVAILABLE';}},
- stopCompass(){try{sensor.unsubscribeCompass();}catch(e){}this.compassActive=false;if(this.selectedId==='27')this.featureState='READY';this.message='COMPASS STOPPED';},
- headingName(d){var a=['N','NE','E','SE','S','SW','W','NW'];return a[Math.round(((d%360)+360)%360/45)%8];},
- startBarometer(){var self=this;if(this.barometerActive)return;try{sensor.subscribeBarometer({success:function(r){var pa=Number(r.pressure||0);self.featureData=(pa/100).toFixed(1)+' hPa';self.featureState='ACTIVE';},fail:function(d,c){self.featureState='UNAVAILABLE';self.message='BAROMETER ERROR '+c;}});this.barometerActive=true;this.message='PRESSURE ACTIVE';}catch(e){this.featureState='UNAVAILABLE';this.message='BAROMETER API UNAVAILABLE';}},
- stopBarometer(){try{sensor.unsubscribeBarometer();}catch(e){}this.barometerActive=false;if(this.selectedId==='19')this.featureState='READY';this.message='PRESSURE STOPPED';},
- lightTimer:null,
- startLight(mode){this.sosConfirmUntil=0;if(this.lightTimer){clearInterval(this.lightTimer);this.lightTimer=null;}this.view=mode==='white'?'lightWhite':'lightRed';this.message='TACTICAL LIGHT '+mode.toUpperCase();},
- confirmSosLight(){var now=Date.now();if(now>this.sosConfirmUntil){this.sosConfirmUntil=now+5000;this.message='SOS SAFETY: TAP SOS AGAIN';this.haptic('long');return;}this.sosConfirmUntil=0;this.startSosLight();},
- startSosLight(){var self=this;var on=true;this.view='lightRed';this.message='SOS FLASH ACTIVE';this.haptic('long');this.lightTimer=setInterval(function(){on=!on;self.view=on?'lightRed':'lightBlack';},450);},
- stopLight(){if(this.lightTimer){clearInterval(this.lightTimer);this.lightTimer=null;}if(this.view==='lightRed'||this.view==='lightWhite'||this.view==='lightBlack')this.view='detail';this.sosConfirmUntil=0;},
- openFeature(id){var f=getFeature(id);if(!f)return;this.selectedId=String(id);this.selectedTitle=f.title;this.selectedSource=f.source;this.selectedDesc=f.desc;this.action1Label=f.actions[0]?f.actions[0].label:'';this.action1Command=f.actions[0]?f.actions[0].command:'';this.action2Label=f.actions[1]?f.actions[1].label:'';this.action2Command=f.actions[1]?f.actions[1].command:'';this.action3Label=f.actions[2]?f.actions[2].label:'';this.action3Command=f.actions[2]?f.actions[2].command:'';this.action4Label=f.actions[3]?f.actions[3].label:'';this.action4Command=f.actions[3]?f.actions[3].command:'';this.featureState=f.source==='UNAVAILABLE'?'API GATED':'READY';this.featureData='-';this.message='MODULE READY';this.view='detail';this.haptic('short');},
- setCategory(c){this.category=c;this.view='list';this.showCommand=c==='COMMAND';this.showBio=c==='BIO';this.showSport=c==='SPORT';this.showField=c==='FIELD';this.showTactical=c==='TACTICAL';this.showSystem=c==='SYSTEM';},goHome(){this.view='home';this.showCommand=false;this.showBio=false;this.showSport=false;this.showField=false;this.showTactical=false;this.showSystem=false;this.refreshBattery();},goList(){this.setCategory(this.category);},catCommand(){this.setCategory('COMMAND');},catBio(){this.setCategory('BIO');},catSport(){this.setCategory('SPORT');},catField(){this.setCategory('FIELD');},catTactical(){this.setCategory('TACTICAL');},catSystem(){this.setCategory('SYSTEM');},
- quickLock(){this.sendCommand('PC_LOCK');},quickMute(){this.sendCommand('MEDIA_MUTE');},quickPlay(){this.sendCommand('MEDIA_PLAY_PAUSE');},quickShot(){this.sendCommand('SCREENSHOT');},detailAction1(){this.sendCommand(this.action1Command);},detailAction2(){this.sendCommand(this.action2Command);},detailAction3(){this.sendCommand(this.action3Command);},detailAction4(){this.sendCommand(this.action4Command);},
- swipeEvent(e){if(e.direction=='right'){if(this.view=='lightRed'||this.view=='lightWhite'||this.view=='lightBlack'){this.stopLight();return;}if(this.view=='home')app.terminate();else if(this.view=='detail')this.goList();else this.goHome();}},
-  f0() { this.openFeature('0'); },
-  f1() { this.openFeature('1'); },
-  f2() { this.openFeature('2'); },
-  f3() { this.openFeature('3'); },
-  f4() { this.openFeature('4'); },
-  f5() { this.openFeature('5'); },
-  f6() { this.openFeature('6'); },
-  f7() { this.openFeature('7'); },
-  f8() { this.openFeature('8'); },
-  f9() { this.openFeature('9'); },
-  f10() { this.openFeature('10'); },
-  f11() { this.openFeature('11'); },
-  f12() { this.openFeature('12'); },
-  f13() { this.openFeature('13'); },
-  f14() { this.openFeature('14'); },
-  f15() { this.openFeature('15'); },
-  f16() { this.openFeature('16'); },
-  f17() { this.openFeature('17'); },
-  f18() { this.openFeature('18'); },
-  f19() { this.openFeature('19'); },
-  f20() { this.openFeature('20'); },
-  f21() { this.openFeature('21'); },
-  f22() { this.openFeature('22'); },
-  f23() { this.openFeature('23'); },
-  f24() { this.openFeature('24'); },
-  f25() { this.openFeature('25'); },
-  f26() { this.openFeature('26'); },
-  f27() { this.openFeature('27'); },
-  f28() { this.openFeature('28'); },
-  f29() { this.openFeature('29'); },
-  f30() { this.openFeature('30'); },
-  f31() { this.openFeature('31'); },
-  f32() { this.openFeature('32'); },
-  f33() { this.openFeature('33'); },
-  f34() { this.openFeature('34'); },
-  f35() { this.openFeature('35'); },
-  f36() { this.openFeature('36'); },
-  f37() { this.openFeature('37'); },
-  f38() { this.openFeature('38'); },
-  f39() { this.openFeature('39'); },
-  f40() { this.openFeature('40'); },
-  f41() { this.openFeature('41'); },
-  f42() { this.openFeature('42'); },
-  f43() { this.openFeature('43'); },
-  f44() { this.openFeature('44'); },
-  f45() { this.openFeature('45'); },
-  f46() { this.openFeature('46'); },
-  f47() { this.openFeature('47'); },
-  f48() { this.openFeature('48'); },
+  data: {
+    view: 'home',
+    category: 'CONTROL',
+    showControl: false,
+    showApps: false,
+    showSmart: false,
+    showNetwork: false,
+    showSystem: false,
+    motionArmed: false,
+    motionCalibrating: false,
+    powerProfile: 'BALANCED',
+    connectionState: 'OFFLINE',
+    pcState: 'UNKNOWN',
+    watchBattery: 0,
+    selectedId: '',
+    selectedTitle: '',
+    selectedSource: '',
+    selectedDesc: '',
+    featureState: 'READY',
+    featureData: '-',
+    action1Label: '', action2Label: '', action3Label: '', action4Label: '',
+    action1Command: '', action2Command: '', action3Command: '', action4Command: '',
+    message: 'READY'
+  },
+
+  onInit() {
+    this.refreshBattery();
+    this.setupWearEngine();
+  },
+
+  onDestroy() {
+    this.stopMotion();
+    try { p2pClient.unregisterReceiver({ onSuccess:function(){}, onFailure:function(){} }); } catch (e) {}
+  },
+
+  setupWearEngine() {
+    var self = this;
+    try {
+      p2pClient.setPeerPkgName(PHONE_PACKAGE);
+      p2pClient.setPeerFingerPrint(PHONE_FINGERPRINT);
+      p2pClient.registerReceiver({
+        onSuccess: function() { self.connectionState='CONNECTED'; self.message='PHONE LINK READY'; },
+        onFailure: function() { self.connectionState='OFFLINE'; self.message='WEAR ENGINE OFFLINE'; },
+        onReceiveMessage: function(data) { self.onPhoneMessage(data); }
+      });
+    } catch (e) {
+      this.connectionState='OFFLINE';
+      this.message='INSTALL OFFICIAL WEAR ENGINE';
+    }
+  },
+
+  onPhoneMessage(data) {
+    if (!data || data.isFileType) return;
+    try {
+      var raw = (typeof data.data !== 'undefined') ? data.data : data;
+      var obj = JSON.parse(String(raw));
+      if (obj.type === 'snapshot') {
+        if (obj.pc && obj.pc.state) this.pcState = obj.pc.state;
+        if (obj.pc && obj.pc.summary && this.selectedId === '1') this.featureData = obj.pc.summary;
+        if (obj.wifi) {
+          var w = obj.wifi;
+          var extra = '';
+          if (w.best && w.best.ssid) extra = ' | BEST ' + w.best.ssid + ' ' + String(w.best.score || 0);
+          if (this.selectedId === '12' || this.selectedId === '39') this.featureData = (w.summary || 'WI-FI SYNC') + extra;
+        }
+        this.connectionState='CONNECTED';
+        this.message='SYNC';
+      } else if (obj.type === 'result') {
+        this.message = obj.ok ? 'OK: ' + (obj.message || obj.action || '') : 'ERROR: ' + (obj.message || 'FAILED');
+        this.featureState = obj.ok ? 'READY' : 'ERROR';
+        if (typeof obj.data !== 'undefined') this.featureData = (typeof obj.data === 'object') ? JSON.stringify(obj.data) : String(obj.data);
+      }
+    } catch (e) {
+      this.message='RX DATA';
+    }
+  },
+
+  sendCommand(action, extra) {
+    var self = this;
+    if (!action) return;
+
+    if (action === 'MOTION_ARM') { this.startMotion(); return; }
+    if (action === 'MOTION_DISARM') { this.stopMotion(); return; }
+    if (action === 'MOTION_CALIBRATE') { this.calibrateMotion(); return; }
+    if (action === 'POWER_BALANCED' || action === 'POWER_ENDURANCE') { this.applyPowerProfile(action); return; }
+    if (action === 'HAPTIC_TEST') { this.haptic('short'); this.message='HAPTIC OK'; return; }
+    if (action === 'LOG_CLEAR') { this.featureData='EMPTY'; this.message='LOCAL LOG CLEARED'; this.haptic('short'); return; }
+
+    var envelope = { v:1, id:nowId(), ts:Date.now(), type:'command', action:action, source:'FIT4PRO', payload:extra || {} };
+    try {
+      builder.setDescription(JSON.stringify(envelope));
+      msg.builder = builder;
+      p2pClient.send(msg, {
+        onSuccess: function() { self.connectionState='CONNECTED'; self.message='SENT ' + action; },
+        onFailure: function() { self.connectionState='OFFLINE'; self.message='PHONE LINK FAILED'; self.haptic('long'); },
+        onSendResult: function(resultCode) { if (resultCode && resultCode.code && resultCode.code != 207) self.message='SEND CODE ' + resultCode.code; },
+        onSendProgress: function() {}
+      });
+    } catch (e) {
+      this.connectionState='OFFLINE';
+      this.message='OFFLINE: ' + action;
+    }
+  },
+
+  refreshBattery() {
+    var self = this;
+    try {
+      battery.getStatus({
+        success: function(d) { self.watchBattery = Math.round((d.level || 0) * 100); },
+        fail: function() {}
+      });
+    } catch (e) {}
+  },
+
+  haptic(mode) {
+    try { vibrator.vibrate({ mode:mode || 'short', success:function(){}, fail:function(){} }); } catch (e) {}
+  },
+
+  applyPowerProfile(action) {
+    this.powerProfile = action === 'POWER_ENDURANCE' ? 'ENDURANCE' : 'BALANCED';
+    this.featureData = this.powerProfile;
+    this.message = 'POWER ' + this.powerProfile;
+    if (this.powerProfile === 'ENDURANCE') this.stopMotion();
+    this.haptic('short');
+  },
+
+  motionState: { baseX:0, baseY:0, baseZ:0, calCount:0, sumX:0, sumY:0, sumZ:0, lastGesture:0, lastTwist:0, twistCount:0, shakeCount:0, shakeWindow:0 },
+
+  startMotion() {
+    var self = this;
+    if (this.motionArmed) return;
+    this.motionArmed = true;
+    this.featureState='ACTIVE';
+    this.message='MOTION ARMED';
+    try {
+      sensor.subscribeAccelerometer({
+        interval:'ui',
+        success:function(r){ self.onAccel(r); },
+        fail:function(d,c){ self.motionArmed=false; self.featureState='NO PERMISSION'; self.message='ACCEL ERROR ' + c; }
+      });
+      sensor.subscribeGyroscope({
+        interval:'ui',
+        success:function(r){ self.onGyro(r); },
+        fail:function(d,c){ self.message='GYRO LIMITED ' + c; }
+      });
+    } catch (e) {
+      this.motionArmed=false;
+      this.featureState='UNAVAILABLE';
+      this.message='MOTION API UNAVAILABLE';
+    }
+  },
+
+  stopMotion() {
+    try { sensor.unsubscribeAccelerometer(); } catch (e) {}
+    try { sensor.unsubscribeGyroscope(); } catch (e) {}
+    this.motionArmed=false;
+    this.motionCalibrating=false;
+    if (this.selectedId === '26') this.featureState='READY';
+  },
+
+  calibrateMotion() {
+    var st=this.motionState;
+    st.calCount=0; st.sumX=0; st.sumY=0; st.sumZ=0;
+    this.motionCalibrating=true;
+    this.message='CALIBRATE 0/20';
+    if (!this.motionArmed) this.startMotion();
+  },
+
+  onAccel(r) {
+    var st=this.motionState;
+    var x=Number(r.x||0), y=Number(r.y||0), z=Number(r.z||0);
+    if (this.motionCalibrating) {
+      st.sumX+=x; st.sumY+=y; st.sumZ+=z; st.calCount++;
+      this.message='CALIBRATE ' + st.calCount + '/20';
+      if (st.calCount >= 20) {
+        st.baseX=st.sumX/20; st.baseY=st.sumY/20; st.baseZ=st.sumZ/20;
+        this.motionCalibrating=false;
+        this.message='CALIBRATION GOOD';
+        this.haptic('short');
+      }
+      return;
+    }
+    var now=Date.now();
+    if (now-st.lastGesture < 800) return;
+    var dx=x-st.baseX, dy=y-st.baseY, dz=z-st.baseZ;
+    var mag=Math.sqrt(dx*dx+dy*dy+dz*dz);
+    if (dx > 11 && Math.abs(dy) < 10) { this.motionGesture('FLICK RIGHT','MEDIA_NEXT',Math.min(99,Math.round(70+dx*2))); return; }
+    if (dx < -11 && Math.abs(dy) < 10) { this.motionGesture('FLICK LEFT','MEDIA_PREV',Math.min(99,Math.round(70+Math.abs(dx)*2))); return; }
+    if (mag > 18) {
+      if (now-st.shakeWindow > 700) { st.shakeWindow=now; st.shakeCount=0; }
+      st.shakeCount++;
+      if (st.shakeCount >= 3) { st.shakeCount=0; this.motionGesture('SHAKE','MEDIA_MUTE',92); }
+    }
+  },
+
+  onGyro(r) {
+    var st=this.motionState;
+    var now=Date.now();
+    var z=Math.abs(Number(r.z||0));
+    if (z > 3.0) {
+      if (now-st.lastTwist < 700) st.twistCount++; else st.twistCount=1;
+      st.lastTwist=now;
+      if (st.twistCount >= 2 && now-st.lastGesture > 800) {
+        st.twistCount=0;
+        this.motionGesture('DOUBLE TWIST','MEDIA_PLAY_PAUSE',90);
+      }
+    }
+  },
+
+  motionGesture(name, cmd, confidence) {
+    if (confidence < 85) return;
+    this.motionState.lastGesture=Date.now();
+    this.featureData=name + ' ' + confidence + '%';
+    this.message='GESTURE ' + name;
+    this.haptic('short');
+    this.sendCommand(cmd,{gesture:name,confidence:confidence});
+  },
+
+  openFeature(id) {
+    var f=getFeature(id);
+    if (!f) return;
+    this.selectedId=String(id);
+    this.selectedTitle=f.title;
+    this.selectedSource=f.source;
+    this.selectedDesc=f.desc;
+    this.action1Label=f.actions[0]?f.actions[0].label:''; this.action1Command=f.actions[0]?f.actions[0].command:'';
+    this.action2Label=f.actions[1]?f.actions[1].label:''; this.action2Command=f.actions[1]?f.actions[1].command:'';
+    this.action3Label=f.actions[2]?f.actions[2].label:''; this.action3Command=f.actions[2]?f.actions[2].command:'';
+    this.action4Label=f.actions[3]?f.actions[3].label:''; this.action4Command=f.actions[3]?f.actions[3].command:'';
+    this.featureState='READY';
+    this.featureData='-';
+    this.message='MODULE READY';
+    this.view='detail';
+    this.haptic('short');
+  },
+
+  setCategory(c) {
+    this.category=c;
+    this.view='list';
+    this.showControl=c==='CONTROL';
+    this.showApps=c==='APPS';
+    this.showSmart=c==='SMART';
+    this.showNetwork=c==='NETWORK';
+    this.showSystem=c==='SYSTEM';
+  },
+
+  goHome() {
+    this.view='home';
+    this.showControl=false; this.showApps=false; this.showSmart=false; this.showNetwork=false; this.showSystem=false;
+    this.refreshBattery();
+  },
+  goList() { this.setCategory(this.category); },
+  catControl() { this.setCategory('CONTROL'); },
+  catApps() { this.setCategory('APPS'); },
+  catSmart() { this.setCategory('SMART'); },
+  catNetwork() { this.setCategory('NETWORK'); },
+  catSystem() { this.setCategory('SYSTEM'); },
+
+  quickLock() { this.sendCommand('PC_LOCK'); },
+  quickMute() { this.sendCommand('MEDIA_MUTE'); },
+  quickPlay() { this.sendCommand('MEDIA_PLAY_PAUSE'); },
+  quickShot() { this.sendCommand('SCREENSHOT'); },
+  detailAction1() { this.sendCommand(this.action1Command); },
+  detailAction2() { this.sendCommand(this.action2Command); },
+  detailAction3() { this.sendCommand(this.action3Command); },
+  detailAction4() { this.sendCommand(this.action4Command); },
+
+  swipeEvent(e) {
+    if (e.direction == 'right') {
+      if (this.view == 'home') app.terminate();
+      else if (this.view == 'detail') this.goList();
+      else this.goHome();
+    }
+  },
+
+  f0(){this.openFeature('0');}, f1(){this.openFeature('1');}, f2(){this.openFeature('2');}, f3(){this.openFeature('3');},
+  f4(){this.openFeature('4');}, f5(){this.openFeature('5');}, f6(){this.openFeature('6');}, f7(){this.openFeature('7');},
+  f8(){this.openFeature('8');}, f9(){this.openFeature('9');}, f10(){this.openFeature('10');}, f11(){this.openFeature('11');},
+  f12(){this.openFeature('12');}, f14(){this.openFeature('14');}, f15(){this.openFeature('15');}, f18(){this.openFeature('18');},
+  f21(){this.openFeature('21');}, f23(){this.openFeature('23');}, f25(){this.openFeature('25');}, f26(){this.openFeature('26');},
+  f31(){this.openFeature('31');}, f39(){this.openFeature('39');}
 };
