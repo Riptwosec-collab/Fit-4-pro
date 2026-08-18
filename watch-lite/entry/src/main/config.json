@@ -3,8 +3,8 @@
     "bundleName": "com.riptwosec.pcremotedeck.watch",
     "vendor": "Riptwosec",
     "version": {
-      "code": 5000000,
-      "name": "5.0.0"
+      "code": 5000001,
+      "name": "5.0.1-pc-only"
     }
   },
   "deviceConfig": {},
@@ -12,9 +12,7 @@
     "package": "com.riptwosec.pcremotedeck.watch",
     "name": ".MainAbility",
     "mainAbility": ".MainAbility",
-    "deviceType": [
-      "liteWearable"
-    ],
+    "deviceType": ["liteWearable"],
     "distro": {
       "deliveryWithInstall": true,
       "moduleName": "entry",
@@ -31,12 +29,8 @@
         "launchType": "standard",
         "skills": [
           {
-            "entities": [
-              "entity.system.home"
-            ],
-            "actions": [
-              "action.system.home"
-            ]
+            "entities": ["entity.system.home"],
+            "actions": ["action.system.home"]
           }
         ],
         "srcLanguage": "js",
@@ -45,9 +39,7 @@
     ],
     "js": [
       {
-        "pages": [
-          "pages/index/index"
-        ],
+        "pages": ["pages/index/index"],
         "name": ".MainAbility",
         "window": {
           "designWidth": 480,
@@ -56,24 +48,10 @@
       }
     ],
     "reqPermissions": [
-      {
-        "name": "ohos.permission.VIBRATE"
-      },
-      {
-        "name": "ohos.permission.LOCATION"
-      },
-      {
-        "name": "ohos.permission.READ_HEALTH_DATA"
-      },
-      {
-        "name": "ohos.permission.ACTIVITY_MOTION"
-      },
-      {
-        "name": "ohos.permission.ACCELEROMETER"
-      },
-      {
-        "name": "ohos.permission.GYROSCOPE"
-      }
+      {"name": "ohos.permission.VIBRATE"},
+      {"name": "ohos.permission.ACTIVITY_MOTION"},
+      {"name": "ohos.permission.ACCELEROMETER"},
+      {"name": "ohos.permission.GYROSCOPE"}
     ],
     "metaData": {
       "customizeData": [
