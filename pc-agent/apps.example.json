@@ -1,0 +1,9 @@
+{
+  "chrome": {"name": "Chrome", "candidates": ["chrome.exe"]},
+  "vscode": {"name": "VS Code", "candidates": ["code.cmd", "code.exe"]},
+  "spotify": {"name": "Spotify", "candidates": ["Spotify.exe"]},
+  "discord": {"name": "Discord", "candidates": ["Discord.exe"]},
+  "steam": {"name": "Steam", "candidates": ["steam.exe"]},
+  "files": {"name": "Files", "candidates": ["explorer.exe"]},
+  "cmd": {"name": "Command Prompt", "candidates": ["cmd.exe"]}
+}

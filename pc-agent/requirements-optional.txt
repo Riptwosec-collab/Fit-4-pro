@@ -1,0 +1,3 @@
+# Optional: enables per-app Audio Mixer sessions on Windows.
+pycaw
+comtypes

@@ -1,5 +1,7 @@
 # Secrets / local runtime config
 pc-agent/agent_config.json
+pc-agent/macros.json
+pc-agent/apps.json
 android-companion/local.properties
 local-device-config.json
 *.jks

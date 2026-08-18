@@ -1,176 +1,60 @@
-# PC Remote Deck — HUAWEI WATCH FIT 4 Pro
+# PC Remote Deck V6 — HUAWEI WATCH FIT 4 Pro
 
-Repository นี้เหลือเฉพาะ **PC Remote Deck** สำหรับ HUAWEI WATCH FIT 4 Pro แล้ว
+V6 ยังคงเป็น **PC Remote Deck only** และยกระดับจาก remote button deck เป็น wrist PC control system แบบมี live state.
 
-Field Core / Bio / Sport / Outdoor / Tactical Navigation ถูกแยกออกไปเป็นอีกโปรเจกต์และไม่อยู่ในแอปนี้
+## V6 Highlights
 
-## Architecture
+- Watch Home V2: CPU / GPU / RAM / Ping / Active App / Context / Alerts
+- PC Monitor Pro: CPU, GPU usage (best-effort Windows counter), RAM, Disk, Network, Top Processes, temperature when Windows exposes it
+- Audio Mixer Pro: master media controls และ optional per-app sessions ผ่าน `pycaw`
+- Window Center: active window / window list / focus / minimize / maximize / close
+- Air Mouse Pro: gyroscope cursor streaming พร้อม sensitivity/dead-zone
+- Macro Deck: safe macro storage/run; Macro Builder อยู่ใน Android Companion
+- Context Engine: Browser / Dev / Media / Game / Meeting / Generic profiles และ contextual action slots
+- Protocol Engine V2: Battle Station / Deep Focus + safe multi-step macros
+- Voice Command Pro: ไทย/อังกฤษ; Sleep/Restart/Shutdown ต้องยืนยันบนโทรศัพท์
+- App Launcher Pro: whitelist เดิม + PC-local `apps.json`
+- Network Command Center: IP / Gateway / DNS / throughput / ping
+- Wi-Fi Recon Pro: OPEN != FREE VERIFIED + RSSI trend
+- Companion Auto Sync: จำ PC IP/token ในเครื่องและ sync dashboard ทุก 12 วินาทีขณะ Companion ทำงาน
+- Notification Bridge: agent alerts เช่น CPU/RAM สูง, macro complete, screenshot
+- Trust Center: peer status + local PC link revoke
 
-```text
-HUAWEI WATCH FIT 4 PRO
-        │
-        │ Huawei Wear Engine
-        ▼
-ANDROID PHONE COMPANION
-        │
-        │ Authenticated LAN channel
-        ▼
-WINDOWS PC AGENT
-```
+## Security
 
-เป้าหมายหลัก:
+- ไม่มี arbitrary shell endpoint
+- PC Agent รับเฉพาะ action whitelist
+- Bearer token + HMAC-SHA256 + timestamp + nonce/replay protection
+- Macro step ทุกตัวถูกตรวจ safe allowlist ก่อน save/run
+- Dynamic app launcher เปิดได้เฉพาะ app definition ที่อยู่บน PC เอง
+- Power actions ต้องมี `confirmed=true`; Voice flow แสดง confirmation dialog บนมือถือก่อนส่ง
+- runtime secrets/config (`agent_config.json`, `macros.json`, `apps.json`) ถูก gitignore
 
-**WATCH COMMANDS → PHONE BRIDGE → PC EXECUTES**
+## Structure
 
-## Watch App — 22 Modules
+- `watch-lite/` — Lite Wearable UI 480×408
+- `android-companion/` — Wear Engine bridge, auto sync, Voice, Wi-Fi Recon, Macro Builder
+- `pc-agent/` — Windows agent V6
+- `tools/` — identity / SDK / preflight
+- `docs/` — build, capability, regression, V6 upgrade notes
 
-### CONTROL
-- Favorites
-- PC Monitor
-- Now Playing
-- Air Mouse
-- D-Pad
-- Pro Tools
-- Terminal
-- Command System
+## Optional Audio Mixer dependency
 
-### APPS
-- App Launcher
-- Stream Hub
-- Camera Pro
-
-### SMART
-- AI Limits
-- Context Aware
-- Smart Room
-- Asset Radar
-- Protocols
-- Motion Command
-- Voice Command
-
-### NETWORK
-- Network Status
-- Wi-Fi Recon
-
-### SYSTEM
-- System
-- System Log
-
-## Removed from this app
-
-สิ่งต่อไปนี้ไม่อยู่ใน PC Remote Deck แล้ว:
-
-- Bio Telemetry / Daily Hub / Sleep
-- Sports HUD / Running / Aqua / Golf
-- Navigation / Silent Nav / Tactical Nav
-- Atmospheric / Acoustic
-- Depth HUD / Tactical Light / Grid-Down
-- Field Systems
-- Breadcrumb / Geo Anchor
-- Solar / Thermal / Altitude / Transit / Sky
-- Emergency Core
-- Light Guardian
-
-ระบบเหล่านี้เป็นหน้าที่ของโปรเจกต์ **Field Core** แยกต่างหาก
-
-## Watch-native
-
-- UI 480×408
-- Haptic feedback
-- Battery status
-- Accelerometer + Gyroscope สำหรับ Motion Command
-- Motion calibration / confidence / cooldown
-- Local power profile สำหรับ PC Remote Deck
-- Local System Log state
-
-Motion mapping:
-
-```text
-FLICK RIGHT  → NEXT TRACK
-FLICK LEFT   → PREVIOUS TRACK
-DOUBLE TWIST → PLAY / PAUSE
-SHAKE        → MUTE
-```
-
-## Phone-assisted
-
-- Huawei Wear Engine P2P bridge
-- Wi-Fi Recon ผ่าน Android Wi-Fi APIs
-- Network validation / captive portal classification
-- Android Speech Recognition สำหรับ Voice Command
-- Phone providers สำหรับ AI Limits / Asset Radar / Camera / Smart Room ตามการเชื่อมต่อที่ตั้งค่า
-
-Wi-Fi Recon ยึดหลัก:
-
-**OPEN ≠ FREE**
-
-และไม่รวมเครื่องมือโจมตีเครือข่าย
-
-## PC-assisted
-
-- Lock PC
-- Play/Pause / Next / Previous / Mute / Volume
-- Show Desktop / Alt+Tab
-- Ctrl+C / Ctrl+V
-- Arrow/D-Pad
-- Mouse click / scroll
-- Screenshot
-- Whitelisted App Launcher
-- Battle Station
-- Deep Focus
-- PC status
-
-PC Agent ใช้ token + HMAC + timestamp + nonce และไม่มี arbitrary shell endpoint
-
-## Project Structure
-
-```text
-Fit-4-pro/
-├── watch-lite/
-├── android-companion/
-├── pc-agent/
-├── docs/
-├── tools/
-├── REAL_DEVICE_INSTALL.ps1
-└── README_TH.md
-```
-
-## ก่อน Build ลงเครื่องจริง
-
-ต้องมี:
-
-1. Huawei Developer App ID
-2. Android signing SHA-256 fingerprint
-3. Lite Wearable signing SHA-256 fingerprint
-4. Official Huawei Wear Engine `wearengine.js`
-5. DevEco Studio
-6. Android Studio / Android SDK
-
-ตั้ง identity:
+บน Windows:
 
 ```powershell
-python tools/configure_identity.py `
-  --huawei-app-id YOUR_APP_ID `
-  --android-fingerprint YOUR_ANDROID_SHA256 `
-  --watch-fingerprint YOUR_WATCH_SHA256
+pip install -r pc-agent\requirements-optional.txt
 ```
 
-ติดตั้ง Wear Engine SDK ฝั่ง Watch:
+ถ้าไม่ติดตั้ง `pycaw` แอปยังทำงานได้ แต่ per-app Audio Mixer จะแสดง `OPTIONAL_PYCAW_MISSING` และ master media controls ยังใช้ได้.
+
+## First run
 
 ```powershell
-python tools/install_wearengine_sdk.py C:\path\to\wearengine.js
+python pc-agent\generate_token.py
+python pc-agent\pc_agent.py
 ```
 
-ตรวจ source:
+นำ token ไปใส่ Android Companion จากนั้น Authorize Wear Engine → Find/Register Watch → Sync dashboard.
 
-```powershell
-python tools/preflight.py
-```
-
-หรือใช้:
-
-```powershell
-.\REAL_DEVICE_INSTALL.ps1
-```
-
-ดูขั้นตอนเต็มใน `docs/BUILD_AND_INSTALL_TH.md` และ `docs/REAL_DEVICE_INSTALL_TH.md`
+ก่อน build เครื่องจริงยังต้องใส่ Huawei App ID, Android signing fingerprint, Watch signing fingerprint และ official Lite Wearable `wearengine.js` ตาม `docs/BUILD_AND_INSTALL_TH.md`.

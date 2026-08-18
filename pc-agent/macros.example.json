@@ -1,0 +1,5 @@
+{
+  "work": {"name": "Work Start", "steps": ["APP_VSCODE", "APP_CHROME", "DEEP_FOCUS"]},
+  "game": {"name": "Game Start", "steps": ["APP_STEAM", "APP_DISCORD", "BATTLE_STATION"]},
+  "meeting": {"name": "Meeting", "steps": ["MEDIA_MUTE", "SHOW_DESKTOP"]}
+}

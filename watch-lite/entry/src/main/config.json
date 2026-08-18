@@ -2,10 +2,7 @@
   "app": {
     "bundleName": "com.riptwosec.pcremotedeck.watch",
     "vendor": "Riptwosec",
-    "version": {
-      "code": 5000001,
-      "name": "5.0.1-pc-only"
-    }
+    "version": {"code": 6000000, "name": "6.0.0"}
   },
   "deviceConfig": {},
   "module": {
@@ -13,54 +10,25 @@
     "name": ".MainAbility",
     "mainAbility": ".MainAbility",
     "deviceType": ["liteWearable"],
-    "distro": {
-      "deliveryWithInstall": true,
-      "moduleName": "entry",
-      "moduleType": "entry",
-      "installationFree": false
-    },
-    "abilities": [
-      {
-        "name": ".MainAbility",
-        "icon": "$media:icon",
-        "label": "$string:app_name",
-        "description": "$string:description",
-        "type": "page",
-        "launchType": "standard",
-        "skills": [
-          {
-            "entities": ["entity.system.home"],
-            "actions": ["action.system.home"]
-          }
-        ],
-        "srcLanguage": "js",
-        "srcPath": "MainAbility"
-      }
-    ],
-    "js": [
-      {
-        "pages": ["pages/index/index"],
-        "name": ".MainAbility",
-        "window": {
-          "designWidth": 480,
-          "autoDesignWidth": false
-        }
-      }
-    ],
+    "distro": {"deliveryWithInstall": true, "moduleName": "entry", "moduleType": "entry", "installationFree": false},
+    "abilities": [{
+      "name": ".MainAbility",
+      "icon": "$media:icon",
+      "label": "$string:app_name",
+      "description": "$string:description",
+      "type": "page",
+      "launchType": "standard",
+      "skills": [{"entities": ["entity.system.home"], "actions": ["action.system.home"]}],
+      "srcLanguage": "js",
+      "srcPath": "MainAbility"
+    }],
+    "js": [{"pages": ["pages/index/index"], "name": ".MainAbility", "window": {"designWidth": 480, "autoDesignWidth": false}}],
     "reqPermissions": [
       {"name": "ohos.permission.VIBRATE"},
       {"name": "ohos.permission.ACTIVITY_MOTION"},
       {"name": "ohos.permission.ACCELEROMETER"},
       {"name": "ohos.permission.GYROSCOPE"}
     ],
-    "metaData": {
-      "customizeData": [
-        {
-          "name": "supportLists",
-          "value": "com.riptwosec.pcremotedeck:REPLACE_WITH_ANDROID_SHA256_FINGERPRINT",
-          "extra": ""
-        }
-      ]
-    }
+    "metaData": {"customizeData": [{"name": "supportLists", "value": "com.riptwosec.pcremotedeck:REPLACE_WITH_ANDROID_SHA256_FINGERPRINT", "extra": ""}]}
   }
 }
