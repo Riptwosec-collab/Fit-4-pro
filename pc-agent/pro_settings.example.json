@@ -1,0 +1,30 @@
+{
+  "telemetry_interval_seconds": 5,
+  "history_seconds": 300,
+  "context_mode": "AUTO",
+  "context_locked": false,
+  "manual_context": "DESKTOP",
+  "profile": "WORK",
+  "motion_confidence_threshold": 85,
+  "notification_min_priority": "WARNING",
+  "token_rotation_days": 30,
+  "alert_thresholds": {
+    "cpuPercent": {"threshold": 90, "duration": 15},
+    "gpuPercent": {"threshold": 95, "duration": 15},
+    "ramPercent": {"threshold": 90, "duration": 15},
+    "cpuTempC": {"threshold": 85, "duration": 15},
+    "gpuTempC": {"threshold": 85, "duration": 15}
+  },
+  "permissions": {
+    "SYSTEM_MONITOR": true,
+    "INPUT_CONTROL": true,
+    "WINDOW_CONTROL": true,
+    "AUDIO": true,
+    "APP_LAUNCH": true,
+    "NOTIFICATION": true,
+    "MACRO": true,
+    "TRUST": true
+  },
+  "pinned_apps": ["chrome", "vscode", "discord", "spotify", "steam", "files", "cmd"],
+  "favorite_audio_apps": ["spotify", "chrome", "discord"]
+}

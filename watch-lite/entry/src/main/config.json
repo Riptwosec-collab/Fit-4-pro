@@ -3,8 +3,8 @@
     "bundleName": "com.riptwosec.pcremotedeck.watch",
     "vendor": "Riptwosec",
     "version": {
-      "code": 7000000,
-      "name": "7.0.0"
+      "code": 8000000,
+      "name": "8.0.0"
     }
   },
   "deviceConfig": {},
@@ -12,9 +12,7 @@
     "package": "com.riptwosec.pcremotedeck.watch",
     "name": ".MainAbility",
     "mainAbility": ".MainAbility",
-    "deviceType": [
-      "liteWearable"
-    ],
+    "deviceType": ["liteWearable"],
     "distro": {
       "deliveryWithInstall": true,
       "moduleName": "entry",
@@ -51,8 +49,6 @@
     ],
     "reqPermissions": [
       {"name":"ohos.permission.VIBRATE"},
-      {"name":"ohos.permission.LOCATION"},
-      {"name":"ohos.permission.READ_HEALTH_DATA"},
       {"name":"ohos.permission.ACTIVITY_MOTION"},
       {"name":"ohos.permission.ACCELEROMETER"},
       {"name":"ohos.permission.GYROSCOPE"}

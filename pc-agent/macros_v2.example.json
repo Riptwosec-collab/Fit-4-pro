@@ -1,0 +1,41 @@
+{
+  "work": {
+    "name": "Work Mode",
+    "folder": "Profiles",
+    "icon": "briefcase",
+    "accent": "cyan",
+    "favorite": true,
+    "pinned": true,
+    "steps": [
+      {"type": "APP", "id": "vscode"},
+      {"type": "DELAY", "ms": 500},
+      {"type": "APP", "id": "chrome"},
+      {"type": "PC_COMMAND", "action": "DEEP_FOCUS"}
+    ]
+  },
+  "game": {
+    "name": "Game Mode",
+    "folder": "Profiles",
+    "icon": "gamepad",
+    "accent": "cyan",
+    "favorite": true,
+    "pinned": true,
+    "steps": [
+      {"type": "APP", "id": "steam"},
+      {"type": "APP", "id": "discord"},
+      {"type": "PC_COMMAND", "action": "BATTLE_STATION"}
+    ]
+  },
+  "meeting": {
+    "name": "Meeting Mode",
+    "folder": "Profiles",
+    "icon": "microphone",
+    "accent": "cyan",
+    "favorite": true,
+    "pinned": true,
+    "steps": [
+      {"type": "PC_COMMAND", "action": "MEDIA_MUTE"},
+      {"type": "PC_COMMAND", "action": "SHOW_DESKTOP"}
+    ]
+  }
+}

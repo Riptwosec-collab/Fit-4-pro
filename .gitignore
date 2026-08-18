@@ -2,6 +2,9 @@
 pc-agent/agent_config.json
 pc-agent/macros.json
 pc-agent/apps.json
+pc-agent/pro_settings.json
+pc-agent/macros_v2.json
+pc-agent/trust_state.json
 pc-agent/pairing_qr.png
 android-companion/local.properties
 local-device-config.json

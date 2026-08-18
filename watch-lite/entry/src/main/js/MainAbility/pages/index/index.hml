@@ -1,134 +1,60 @@
 <stack class="root" onswipe="swipeEvent">
-  <div class="hud-grid"></div>
-  <div if="{{powerProfile != 'ENDURANCE'}}" class="scan-beam"></div>
+  <div class="grid-layer"></div>
+  <div class="scan-beam"></div>
 
-  <div if="{{view == 'home'}}" class="page">
-    <div class="brand"><text class="brand-main">PC REMOTE DECK</text><text class="brand-sub">FIT 4 PRO</text></div>
-    <div class="status-panel">
-      <div class="status-row"><text class="label">PHONE</text><text class="ok">{{connectionState}}</text></div>
-      <div class="status-row"><text class="label">PC</text><text class="value">{{pcState}}</text></div>
-      <div class="status-row"><text class="label">BATTERY</text><text class="value">{{watchBattery}}%</text></div>
-      <div class="status-row"><text class="label">HR</text><text class="value">{{heartRate}} BPM</text></div>
+  <div if="{{view == 'home'}}" class="page masterpiece-page">
+    <div class="system-status-strip">
+      <div class="status-cell"><text class="status-dot online">●</text><text class="status-label">PC</text></div>
+      <div class="status-cell"><text class="status-dot online">●</text><text class="status-label">PHONE</text></div>
+      <div class="status-cell"><text class="status-dot online">●</text><text class="status-label">NET</text></div>
+      <text class="battery-mini">{{watchBattery}}%</text>
     </div>
-    <div class="live-strip">
-      <div class="live-cell"><text class="live-k">CPU</text><text class="live-v">{{cpu}}</text></div>
-      <div class="live-cell"><text class="live-k">RAM</text><text class="live-v">{{ram}}</text></div>
-      <div class="live-cell"><text class="live-k">PING</text><text class="live-v">{{ping}}</text></div>
-      <div class="live-cell wide"><text class="live-k">ACTIVE</text><text class="live-v tiny">{{activeApp}}</text></div>
+    <div class="header">
+      <text class="time-display">{{clockText}}</text>
+      <div class="status-area"><text class="status-title">STATUS</text><text class="status-secure">{{connectionState}}</text></div>
     </div>
-    <div class="quick-row"><input type="button" class="quick glow-btn" value="LOCK" onclick="quickLock"/><input type="button" class="quick" value="MUTE" onclick="quickMute"/></div>
-    <div class="quick-row"><input type="button" class="quick" value="PLAY" onclick="quickPlay"/><input type="button" class="quick" value="SHOT" onclick="quickShot"/></div>
-    <div class="cat-row"><input type="button" class="cat" value="COMMAND" onclick="catCommand"/><input type="button" class="cat" value="BIO" onclick="catBio"/></div>
-    <div class="cat-row"><input type="button" class="cat" value="SPORT" onclick="catSport"/><input type="button" class="cat" value="FIELD" onclick="catField"/></div>
-    <div class="cat-row"><input type="button" class="cat" value="TACTICAL" onclick="catTactical"/><input type="button" class="cat" value="SYSTEM" onclick="catSystem"/></div>
-    <text class="footer">54 MODULES • UNIFIED RESTORE • SAFE FALLBACK</text>
+    <div class="page-header home-header"><text class="page-title">PC REMOTE DECK</text><div class="subtitle-row"><div class="subtitle-line"></div><text class="page-subtitle">{{contextProfile}} • {{activeApp}}</text><div class="subtitle-line"></div></div></div>
+
+    <div class="home-core">
+      <div class="volume-dial"><div class="volume-ticks"></div><div class="volume-active-clip"><div class="volume-active-ring"></div></div><div class="volume-core"><text class="volume-value">{{masterVolume}}</text><text class="volume-unit">%</text></div></div>
+      <div class="home-stats"><div class="stat"><text class="stat-k">CPU</text><text class="stat-v">{{cpu}}</text></div><div class="stat"><text class="stat-k">RAM</text><text class="stat-v">{{ram}}</text></div><div class="stat"><text class="stat-k">PING</text><text class="stat-v">{{ping}}</text></div><div class="stat"><text class="stat-k">LINK</text><text class="stat-v small">{{quality}}</text></div></div>
+    </div>
+    <div class="eq-row"><div class="eq-bar e1"></div><div class="eq-bar e2"></div><div class="eq-bar e3"></div><div class="eq-bar e4"></div><div class="eq-bar e5"></div><div class="eq-bar e6"></div><div class="eq-bar e7"></div></div>
+    <div class="dynamic-grid"><input type="button" class="dyn-btn active-state" value="{{dynamic1Label}}" onclick="dynamic1"/><input type="button" class="dyn-btn" value="{{dynamic2Label}}" onclick="dynamic2"/><input type="button" class="dyn-btn" value="{{dynamic3Label}}" onclick="dynamic3"/><input type="button" class="dyn-btn" value="{{dynamic4Label}}" onclick="dynamic4"/></div>
+    <div class="quick-grid"><input type="button" class="quick-btn" value="PLAY" onclick="quickPlay"/><input type="button" class="quick-btn" value="MUTE" onclick="quickMute"/><input type="button" class="quick-btn" value="SHOT" onclick="quickShot"/><input type="button" class="quick-btn" value="LOCK" onclick="quickLock"/></div>
+    <div class="dock-wrapper"><div class="dock-scroll"><input type="button" class="dock-item active" value="★" onclick="goHome"/><input type="button" class="dock-item" value="HUB" onclick="f54"/><input type="button" class="dock-item" value="CPU" onclick="f1"/><input type="button" class="dock-item" value="MOU" onclick="f5"/><input type="button" class="dock-item" value="APP" onclick="catApps"/><input type="button" class="dock-item" value="WIN" onclick="f50"/><input type="button" class="dock-item" value="AUD" onclick="f49"/><input type="button" class="dock-item" value="MAC" onclick="f51"/><input type="button" class="dock-item" value="NET" onclick="catNetwork"/><input type="button" class="dock-item" value="SYS" onclick="catSystem"/></div></div>
   </div>
 
-  <div if="{{showCommand}}" class="page">
-    <div class="topbar"><input type="button" class="back" value="&lt;" onclick="goHome"/><text class="title">COMMAND</text><text class="mini">{{connectionState}}</text></div>
-    <div class="category-summary"><text class="summary-item">CPU {{cpu}}</text><text class="summary-item">VOL {{masterVolume}}%</text><text class="summary-item">{{activeApp}}</text></div>
-    <list class="feature-list command-list">
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="FAVORITES" onclick="f0"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="PC MONITOR PRO" onclick="f1"/><text class="source">LIVE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="NOW PLAYING" onclick="f2"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="AI LIMITS" onclick="f3"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="CONTEXT ENGINE" onclick="f4"/><text class="source">LIVE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="AIR MOUSE PRO" onclick="f5"/><text class="source">GYRO</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="APP LAUNCHER PRO" onclick="f6"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="D-PAD" onclick="f7"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="PRO TOOLS" onclick="f9"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="STREAM HUB" onclick="f11"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="NETWORK COMMAND" onclick="f12"/><text class="source">LIVE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="TERMINAL MACROS" onclick="f14"/><text class="source">SAFE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="CAMERA PRO" onclick="f15"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="COMMAND CENTER" onclick="f21"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="PROTOCOL ENGINE V2" onclick="f23"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="MOTION COMMAND" onclick="f26"/><text class="source">WATCH</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="VOICE COMMAND PRO" onclick="f31"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="AUDIO MIXER PRO" onclick="f49"/><text class="source">AUDIO</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="WINDOW CENTER" onclick="f50"/><text class="source">WIN</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="MACRO DECK" onclick="f51"/><text class="source">PC</text></list-item>
-    </list>
+  <div if="{{view == 'list'}}" class="page masterpiece-page">
+    <div class="system-status-strip"><div class="status-cell"><text class="status-dot online">●</text><text class="status-label">PC</text></div><text class="status-label">{{category}}</text><text class="battery-mini">{{watchBattery}}%</text></div>
+    <div class="header"><input type="button" class="back-cyber" value="‹" onclick="goHome"/><div class="status-area"><text class="status-title">STATUS</text><text class="status-secure">{{pcState}}</text></div></div>
+    <div class="page-header compact-header"><text class="page-title">{{category}}</text><div class="subtitle-row"><div class="subtitle-line"></div><text class="page-subtitle">REMOTE DECK MODULES</text><div class="subtitle-line"></div></div></div>
+    <div class="category-summary"><div class="summary-cell"><text class="summary-k">CPU</text><text class="summary-v">{{cpu}}</text></div><div class="summary-cell"><text class="summary-k">CONTEXT</text><text class="summary-v tiny">{{contextProfile}}</text></div><div class="summary-cell"><text class="summary-k">ACTIVE</text><text class="summary-v tiny">{{activeApp}}</text></div></div>
+    <list class="feature-list"><list-item for="{{categoryFeatures}}" class="feature-row"><input type="button" class="feature-btn" value="{{$item.title}}" data-id="{{$item.id}}" onclick="featureTap"/><text class="source">{{$item.source}}</text></list-item></list>
+    <div class="category-dock"><input type="button" class="dock-item" value="CTRL" onclick="catControl"/><input type="button" class="dock-item" value="APP" onclick="catApps"/><input type="button" class="dock-item" value="AI" onclick="catSmart"/><input type="button" class="dock-item" value="NET" onclick="catNetwork"/><input type="button" class="dock-item" value="SYS" onclick="catSystem"/></div>
   </div>
 
-  <div if="{{showBio}}" class="page">
-    <div class="topbar"><input type="button" class="back" value="&lt;" onclick="goHome"/><text class="title">BIO</text><text class="mini">{{heartRate}} BPM</text></div>
-    <div class="bio-hero"><div class="bio-ring"><text class="bio-value">{{heartRate}}</text><text class="bio-unit">BPM</text></div><div class="bio-copy"><text class="hero-k">LOCAL BIO CORE</text><text class="hero-v">{{featureState}}</text><text class="hero-s">Wellness • No diagnosis</text></div></div>
-    <list class="feature-list short-list">
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="DAILY HUB" onclick="f13"/><text class="source">WATCH</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="BIO TELEMETRY" onclick="f22"/><text class="source">WATCH</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="MORNING DIAGNOSTIC" onclick="f32"/><text class="source">PHONE</text></list-item>
-    </list>
-  </div>
+  <div if="{{view == 'detail'}}" class="page masterpiece-page detail-page">
+    <div class="system-status-strip"><div class="status-cell"><text class="status-dot online">●</text><text class="status-label">PC</text></div><text class="status-label">MODULE</text><text class="battery-mini">{{watchBattery}}%</text></div>
+    <div class="header"><input type="button" class="back-cyber" value="‹" onclick="goList"/><div class="status-area"><text class="status-title">COMMAND</text><text class="status-secure">{{commandState}}</text></div></div>
+    <div class="page-header detail-header"><text class="page-title detail-title">{{selectedTitle}}</text><div class="subtitle-row"><div class="subtitle-line"></div><text class="page-subtitle">{{selectedSource}}</text><div class="subtitle-line"></div></div></div>
 
-  <div if="{{showSport}}" class="page">
-    <div class="topbar"><input type="button" class="back" value="&lt;" onclick="goHome"/><text class="title">SPORT</text><text class="mini">{{connectionState}}</text></div>
-    <div class="sport-hero"><text class="hero-big">HUD</text><div class="sport-stats"><text class="hero-k">PROFILE</text><text class="hero-v">ADAPTIVE</text><text class="hero-s">Run • Aqua • Golf • Custom</text></div></div>
-    <list class="feature-list medium-list">
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="AQUA RECON" onclick="f33"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="RUN ANALYZER" onclick="f34"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="TACTICAL CADDIE" onclick="f35"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="SPORTS HUD" onclick="f38"/><text class="source">PHONE</text></list-item>
-    </list>
-  </div>
+    <div if="{{selectedId == '1'}}" class="module-stage"><div class="metric-bars"><div class="metric-row"><text>CPU</text><div class="track"><div class="fill fcpu"></div></div><text>{{cpu}}</text></div><div class="metric-row"><text>GPU</text><div class="track"><div class="fill fgpu"></div></div><text>{{gpu}}</text></div><div class="metric-row"><text>RAM</text><div class="track"><div class="fill fram"></div></div><text>{{ram}}</text></div><text class="stage-note">{{historySummary}} • {{topProcess}}</text></div></div>
+    <div if="{{selectedId == '5'}}" class="module-stage"><div class="mouse-radar"><div class="mouse-ring r1"></div><div class="mouse-ring r2"></div><div class="mouse-cross h"></div><div class="mouse-cross v"></div><div class="mouse-dot"></div></div><div class="side-stats"><text>MODE {{airMousePrecision}}</text><text>SENS {{airMouseSensitivity}}</text><text>DRAG {{airMouseDragging}}</text><text>CURVE {{airMouseCurve}}</text></div></div>
+    <div if="{{selectedId == '4'}}" class="module-stage vertical"><div class="context-core"><text class="visual-big">{{contextProfile}}</text><text class="visual-sub">{{contextMode}} • {{activeApp}}</text></div><div class="chip-row"><text>{{dynamic1Label}}</text><text>{{dynamic2Label}}</text><text>{{dynamic3Label}}</text></div></div>
+    <div if="{{selectedId == '6'}}" class="module-stage vertical"><div class="app-orbit"><div class="orbit-dot"></div><text class="visual-big">APP</text></div><text class="stage-note">{{appSummary}}</text></div>
+    <div if="{{selectedId == '12' || selectedId == '39'}}" class="module-stage"><div class="network-radar"><div class="radar-ring rr1"></div><div class="radar-ring rr2"></div><div class="radar-sweep"></div><text class="radar-core">{{ping}}</text></div><div class="side-stats"><text>LINK {{quality}}</text><text class="wrap">{{wifiSummary}}</text></div></div>
+    <div if="{{selectedId == '21' || selectedId == '54'}}" class="module-stage vertical"><div class="command-core"><div class="command-pulse"></div><text class="visual-big">{{pcState}}</text><text class="visual-sub">{{contextProfile}} • {{activeApp}}</text></div><div class="chip-row"><text>MOUSE</text><text>WINDOWS</text><text>AUDIO</text></div></div>
+    <div if="{{selectedId == '26'}}" class="module-stage"><div class="motion-core"><div class="motion-ring"></div><text class="visual-big">{{motionConfidence}}%</text></div><div class="side-stats"><text>{{motionSensitivity}}</text><text>THRESH {{motionThreshold}}%</text><text>TEST {{motionTestMode}}</text></div></div>
+    <div if="{{selectedId == '49'}}" class="module-stage"><div class="mini-dial"><div class="mini-ring"></div><text class="visual-big">{{masterVolume}}%</text></div><div class="side-stats"><text>{{audioOutput}}</text><text>PER-APP MIXER</text><text>OUTPUT SAFE</text></div></div>
+    <div if="{{selectedId == '50'}}" class="module-stage vertical"><div class="window-stack"><div class="win w1"></div><div class="win w2"></div><div class="win w3"></div></div><text class="stage-note">{{featureData}}</text></div>
+    <div if="{{selectedId == '51'}}" class="module-stage vertical"><div class="macro-flow"><div class="flow-node active">1</div><div class="flow-line"><div class="flow-pulse"></div></div><div class="flow-node">2</div><div class="flow-line"><div class="flow-pulse delay"></div></div><div class="flow-node">3</div></div><text class="stage-note">{{macroState}} • {{featureData}}</text></div>
+    <div if="{{selectedId == '52'}}" class="module-stage vertical"><div class="alert-core"><div class="alert-pulse"></div><text class="visual-big">{{notificationCount}}</text><text class="visual-sub">ALERTS</text></div><text class="stage-note">{{latestNotification}}</text></div>
+    <div if="{{selectedId == '53'}}" class="module-stage vertical"><div class="shield-core"><div class="shield-ring"></div><text class="visual-big">TRUST</text></div><text class="stage-note">{{trustSummary}}</text></div>
+    <div if="{{selectedId == '55'}}" class="module-stage vertical"><div class="settings-core"><text class="visual-big">{{profileName}}</text><text class="visual-sub">PC REMOTE SETTINGS</text></div><text class="stage-note">{{settingsSummary}}</text></div>
+    <div if="{{selectedId != '1' &amp;&amp; selectedId != '4' &amp;&amp; selectedId != '5' &amp;&amp; selectedId != '6' &amp;&amp; selectedId != '12' &amp;&amp; selectedId != '21' &amp;&amp; selectedId != '26' &amp;&amp; selectedId != '39' &amp;&amp; selectedId != '49' &amp;&amp; selectedId != '50' &amp;&amp; selectedId != '51' &amp;&amp; selectedId != '52' &amp;&amp; selectedId != '53' &amp;&amp; selectedId != '54' &amp;&amp; selectedId != '55'}}" class="module-stage vertical"><div class="generic-core"><text class="visual-big">{{visualMain}}</text><text class="visual-sub">{{visualSub}}</text></div><text class="stage-note">{{featureData}}</text></div>
 
-  <div if="{{showField}}" class="page">
-    <div class="topbar"><input type="button" class="back" value="&lt;" onclick="goHome"/><text class="title">FIELD</text><text class="mini">{{connectionState}}</text></div>
-    <div class="field-radar"><div class="field-r1"></div><div class="field-r2"></div><div if="{{powerProfile != 'ENDURANCE'}}" class="field-sweep"></div><div class="field-core"><text class="field-core-v">{{breadcrumbPoints}}</text><text class="field-core-k">POINTS</text></div></div>
-    <list class="feature-list field-list">
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="NAVIGATION" onclick="f17"/><text class="source">WATCH+PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="WI-FI RECON PRO" onclick="f39"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="FIELD SYSTEMS" onclick="f40"/><text class="source">WATCH+PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="BREADCRUMB" onclick="f41"/><text class="source">WATCH+PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="GEO ANCHOR" onclick="f42"/><text class="source">WATCH+PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="SOLAR SENTINEL" onclick="f43"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="THERMAL LOAD" onclick="f44"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="ALTITUDE SENTINEL" onclick="f45"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="TRANSIT GUARDIAN" onclick="f46"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="SKY SCANNER" onclick="f47"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="EMERGENCY CORE" onclick="f48"/><text class="source">WATCH+PHONE</text></list-item>
-    </list>
-  </div>
-
-  <div if="{{showTactical}}" class="page tactical-page">
-    <div class="topbar tactical-top"><input type="button" class="back tactical-back" value="&lt;" onclick="goHome"/><text class="title">TACTICAL</text><text class="mini danger-mini">GRID READY</text></div>
-    <div class="tactical-hero"><div class="crosshair"><div class="cross-h"></div><div class="cross-v"></div><div class="cross-core"></div></div><div class="tactical-copy"><text class="hero-k">OFFLINE CORE</text><text class="hero-v red">READY</text><text class="hero-s">Compass • Light • Pressure</text></div></div>
-    <list class="feature-list tactical-list">
-      <list-item class="feature-row"><input type="button" class="feature-btn tactical-feature" value="ATMOSPHERIC" onclick="f19"/><text class="source red">WATCH+PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn tactical-feature" value="ACOUSTIC" onclick="f20"/><text class="source red">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn tactical-feature" value="TACTICAL" onclick="f24"/><text class="source red">WATCH</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn tactical-feature" value="TACTICAL NAV" onclick="f27"/><text class="source red">WATCH+PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn tactical-feature" value="SILENT NAV" onclick="f28"/><text class="source red">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn tactical-feature" value="DEPTH HUD" onclick="f29"/><text class="source red">API GATED</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn tactical-feature" value="TACTICAL LIGHT" onclick="f30"/><text class="source red">WATCH</text></list-item>
-    </list>
-  </div>
-
-  <div if="{{showSystem}}" class="page">
-    <div class="topbar"><input type="button" class="back" value="&lt;" onclick="goHome"/><text class="title">SYSTEM</text><text class="mini">{{connectionState}}</text></div>
-    <div class="system-hero"><div class="system-ring"><text class="system-value">{{watchBattery}}%</text><text class="system-k">WATCH</text></div><div class="system-stats"><div class="sys-row"><text class="label">PC</text><text class="ok">{{pcState}}</text></div><div class="sys-row"><text class="label">POWER</text><text class="value">{{powerProfile}}</text></div><div class="sys-row"><text class="label">ALERTS</text><text class="value">{{notificationCount}}</text></div></div></div>
-    <list class="feature-list system-list">
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="SMART ROOM" onclick="f8"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="SYSTEM" onclick="f10"/><text class="source">WATCH</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="SMART WALLET" onclick="f16"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="ASSET RADAR" onclick="f18"/><text class="source">PHONE</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="SYSTEM LOG" onclick="f25"/><text class="source">WATCH</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="LIGHT SCANNER" onclick="f36"/><text class="source">API GATED</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="POWER CORE" onclick="f37"/><text class="source">WATCH</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="NOTIFICATION BRIDGE" onclick="f52"/><text class="source">PC</text></list-item>
-      <list-item class="feature-row"><input type="button" class="feature-btn" value="TRUST CENTER" onclick="f53"/><text class="source">PHONE</text></list-item>
-    </list>
-  </div>
-
-  <div if="{{view == 'lightRed'}}" class="light-red"><text class="light-title">TACTICAL RED</text><text class="light-sub">SCREEN LIGHT</text><input type="button" class="light-stop" value="STOP" onclick="stopLight"/></div>
-  <div if="{{view == 'lightWhite'}}" class="light-white"><text class="light-title dark-text">WHITE LIGHT</text><text class="light-sub dark-text">SCREEN LIGHT</text><input type="button" class="light-stop" value="STOP" onclick="stopLight"/></div>
-  <div if="{{view == 'lightBlack'}}" class="light-black"><text class="light-title red-text">SOS</text><text class="light-sub red-text">FLASHING</text><input type="button" class="light-stop" value="STOP SOS" onclick="stopLight"/></div>
-
-  <div if="{{view == 'detail'}}" class="page detail-page">
-    <div class="topbar"><input type="button" class="back" value="&lt;" onclick="goList"/><text class="detail-title">{{selectedTitle}}</text><text class="mini">{{selectedSource}}</text></div>
-    <div class="detail-visual"><div class="visual-core"><text class="visual-main">{{visualMain}}</text><text class="visual-sub">{{visualSub}}</text></div><div class="visual-side"><div class="visual-stat"><text class="visual-k">STATE</text><text class="visual-v">{{featureState}}</text></div><div class="visual-stat"><text class="visual-k">SOURCE</text><text class="visual-v">{{selectedSource}}</text></div><div class="visual-stat"><text class="visual-k">POWER</text><text class="visual-v">{{powerProfile}}</text></div></div></div>
-    <div class="detail-card"><text class="detail-desc">{{selectedDesc}}</text><div class="metric-row"><text class="label">DATA</text><text class="value small-value">{{featureData}}</text></div><div class="metric-row"><text class="label">ACTIVE APP</text><text class="value small-value">{{activeApp}}</text></div></div>
-    <div class="action-grid"><input if="{{action1Label != ''}}" type="button" class="action" value="{{action1Label}}" onclick="detailAction1"/><input if="{{action2Label != ''}}" type="button" class="action" value="{{action2Label}}" onclick="detailAction2"/><input if="{{action3Label != ''}}" type="button" class="action" value="{{action3Label}}" onclick="detailAction3"/><input if="{{action4Label != ''}}" type="button" class="action danger" value="{{action4Label}}" onclick="detailAction4"/></div>
-    <text class="message">{{message}}</text>
+    <div class="detail-actions"><input if="{{action1Label}}" type="button" class="hud-action active-state" value="{{action1Label}}" onclick="detailAction1"/><input if="{{action2Label}}" type="button" class="hud-action" value="{{action2Label}}" onclick="detailAction2"/><input if="{{action3Label}}" type="button" class="hud-action" value="{{action3Label}}" onclick="detailAction3"/><input if="{{action4Label}}" type="button" class="hud-action" value="{{action4Label}}" onclick="detailAction4"/></div>
+    <div class="command-footer"><text class="command-id">{{message}}</text><input if="{{retryAllowed}}" type="button" class="retry-btn" value="RETRY" onclick="retryLast"/></div>
   </div>
 </stack>
