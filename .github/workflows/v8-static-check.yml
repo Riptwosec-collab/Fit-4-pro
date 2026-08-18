@@ -1,0 +1,45 @@
+name: V8 Static Check
+
+on:
+  push:
+    branches: [upgrade/v8-pro-control, main]
+  workflow_dispatch:
+
+jobs:
+  static-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Python syntax
+        run: python -m py_compile pc-agent/pc_agent.py pc-agent/pc_agent_pro.py pc-agent/pro_support.py pc-agent/pro_macro.py pc-agent/pro_engine.py pc-agent/discovery_service.py pc-agent/pair_device.py
+      - name: Watch JavaScript syntax
+        run: |
+          node --check watch-lite/entry/src/main/js/MainAbility/common/featureCatalog.js
+          node --check watch-lite/entry/src/main/js/MainAbility/pages/index/index.js
+      - name: HML and JSON syntax
+        run: |
+          python - <<'PY'
+          import json, xml.etree.ElementTree as ET
+          ET.parse('watch-lite/entry/src/main/js/MainAbility/pages/index/index.hml')
+          json.load(open('watch-lite/entry/src/main/config.json', encoding='utf-8'))
+          json.load(open('SOURCE_MANIFEST.json', encoding='utf-8'))
+          json.load(open('pc-agent/pro_settings.example.json', encoding='utf-8'))
+          json.load(open('pc-agent/macros_v2.example.json', encoding='utf-8'))
+          print('HML/JSON OK')
+          PY
+      - name: PC-only scope guard
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('watch-lite/entry/src/main/js/MainAbility/common/featureCatalog.js').read_text(encoding='utf-8')
+          banned=['category:\'BIO\'','category:\'SPORT\'','category:\'FIELD\'','category:\'TACTICAL\'']
+          bad=[x for x in banned if x in p]
+          assert not bad, f'FIELD CORE categories leaked into PC Remote Deck: {bad}'
+          print('PC-only scope OK')
+          PY
