@@ -1,37 +1,30 @@
-.root { width:480px; height:408px; background-color:#010308; }
-.page { width:480px; height:408px; background-color:#010308; flex-direction:column; align-items:center; padding:8px 16px; }
-.brand { width:448px; height:34px; flex-direction:row; justify-content:space-between; align-items:center; border-bottom-width:1px; border-color:#12364a; }
-.brand-main { color:#ffffff; font-size:19px; font-weight:bold; }
-.brand-sub { color:#00e5ff; font-size:13px; }
-.hero { width:448px; height:116px; background-color:#07111c; border-radius:16px; padding:8px 12px; margin-top:6px; }
-.hero-row { width:424px; height:20px; flex-direction:row; justify-content:space-between; }
-.pc-state { color:#00ff88; font-size:12px; font-weight:bold; }
-.battery { color:#00e5ff; font-size:12px; }
-.metric-grid { width:424px; height:48px; flex-direction:row; justify-content:space-between; }
-.metric { width:98px; height:44px; background-color:#0a1826; border-radius:10px; flex-direction:column; align-items:center; justify-content:center; }
-.metric-label { color:#6f849a; font-size:9px; }
-.metric-value { color:#ffffff; font-size:14px; font-weight:bold; }
-.active { width:424px; height:18px; color:#00e5ff; font-size:10px; }
-.alert { width:424px; height:18px; color:#ffcc66; font-size:9px; }
-.quick-row,.cat-row { width:448px; height:38px; flex-direction:row; justify-content:space-between; margin-top:3px; }
-.quick { width:216px; height:34px; border-radius:12px; background-color:#071927; color:#00e5ff; font-size:13px; }
-.cat { width:216px; height:34px; border-radius:12px; background-color:#0b1420; color:#ffffff; font-size:12px; }
-.single { justify-content:center; }
-.wide { width:448px; }
-.topbar { width:448px; height:40px; flex-direction:row; justify-content:space-between; align-items:center; border-bottom-width:1px; border-color:#12364a; }
-.back { width:46px; height:38px; border-radius:12px; background-color:#071927; color:#00e5ff; font-size:20px; }
-.title { color:#ffffff; font-size:17px; font-weight:bold; }
-.mini { width:90px; color:#00e5ff; font-size:9px; text-align:right; }
-.feature-list { width:448px; height:354px; margin-top:8px; }
-.feature-row { width:448px; height:46px; flex-direction:row; align-items:center; justify-content:space-between; }
-.feature-btn { width:344px; height:38px; border-radius:12px; background-color:#07111c; color:#ffffff; font-size:13px; text-align:left; }
-.source { width:94px; color:#00e5ff; font-size:9px; text-align:right; }
-.detail-card { width:448px; height:112px; border-radius:14px; background-color:#07111c; padding:10px 12px; margin-top:10px; }
-.detail-desc { width:424px; color:#c8d8e8; font-size:12px; height:42px; }
-.metric-row { width:424px; height:24px; flex-direction:row; justify-content:space-between; align-items:center; }
-.label { color:#6f849a; font-size:11px; }
-.value { color:#ffffff; font-size:11px; }
-.ok { color:#00ff88; font-size:11px; }
-.small-value { width:320px; font-size:9px; text-align:right; }
-.action { width:448px; height:40px; border-radius:12px; background-color:#082334; color:#00e5ff; font-size:13px; margin-top:4px; }
-.message { width:448px; color:#7f9db5; font-size:9px; text-align:center; margin-top:4px; }
+.root { width: 480px; height: 408px; background-color: #010308; }
+.page { width: 480px; height: 408px; background-color: #010308; flex-direction: column; align-items: center; padding: 8px 16px; }
+.brand { width: 448px; height: 38px; flex-direction: row; justify-content: space-between; align-items: center; border-bottom-width: 1px; border-color: #12364a; }
+.brand-main { color: #ffffff; font-size: 20px; font-weight: bold; }
+.brand-sub { color: #00e5ff; font-size: 14px; }
+.status-panel { width: 448px; height: 72px; background-color: #07111c; border-radius: 14px; padding: 6px 12px; margin-top: 8px; }
+.status-row { width: 424px; height: 15px; flex-direction: row; justify-content: space-between; align-items: center; }
+.label { color: #6f849a; font-size: 12px; }
+.value { color: #ffffff; font-size: 13px; }
+.ok { color: #00ff88; font-size: 13px; }
+.quick-row, .cat-row { width: 448px; height: 40px; flex-direction: row; justify-content: space-between; margin-top: 4px; }
+.quick { width: 216px; height: 34px; border-radius: 12px; background-color: #071927; color: #00e5ff; font-size: 14px; }
+.cat { width: 216px; height: 34px; border-radius: 12px; background-color: #0b1420; color: #ffffff; font-size: 13px; }
+.cat-wide { width: 448px; height: 34px; border-radius: 12px; background-color: #0b1420; color: #ffffff; font-size: 13px; }
+.footer { color: #486076; font-size: 10px; margin-top: 4px; }
+.topbar { width: 448px; height: 40px; flex-direction: row; justify-content: space-between; align-items: center; border-bottom-width: 1px; border-color: #12364a; }
+.back { width: 46px; height: 38px; border-radius: 12px; background-color: #071927; color: #00e5ff; font-size: 20px; }
+.title { color: #ffffff; font-size: 18px; font-weight: bold; }
+.mini { width: 86px; color: #00e5ff; font-size: 10px; text-align: right; }
+.feature-list { width: 448px; height: 354px; margin-top: 8px; }
+.feature-row { width: 448px; height: 48px; flex-direction: row; align-items: center; justify-content: space-between; }
+.feature-btn { width: 344px; height: 40px; border-radius: 12px; background-color: #07111c; color: #ffffff; font-size: 14px; text-align: left; }
+.source { width: 94px; color: #00e5ff; font-size: 9px; text-align: right; }
+.detail-card { width: 448px; height: 106px; border-radius: 14px; background-color: #07111c; padding: 10px 12px; margin-top: 10px; }
+.detail-desc { width: 424px; color: #c8d8e8; font-size: 13px; height: 34px; }
+.metric-row { width: 424px; height: 19px; flex-direction: row; justify-content: space-between; align-items: center; }
+.small-value { width: 310px; font-size: 10px; text-align: right; }
+.action { width: 448px; height: 40px; border-radius: 12px; background-color: #082334; color: #00e5ff; font-size: 14px; margin-top: 4px; }
+.danger { background-color: #2a0911; color: #ff335f; }
+.message { width: 448px; color: #7f9db5; font-size: 10px; text-align: center; margin-top: 5px; }
