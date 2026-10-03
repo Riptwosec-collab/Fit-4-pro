@@ -2,14 +2,32 @@ name: V8 Static Check
 
 on:
   push:
-    branches: [upgrade/v8-pro-control, main]
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'screenshots/**'
+      - '.github/ISSUE_TEMPLATE/**'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'screenshots/**'
+      - '.github/ISSUE_TEMPLATE/**'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   static-check:
     runs-on: ubuntu-latest
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
