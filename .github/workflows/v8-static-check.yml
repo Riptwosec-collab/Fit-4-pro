@@ -1,11 +1,13 @@
 name: V8 Static Check
 
 on:
-  push:
-    branches: [upgrade/v8-pro-control, main]
   pull_request:
     branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: lean-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   static-check:
